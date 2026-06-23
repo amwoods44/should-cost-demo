@@ -6013,7 +6013,7 @@ body[data-view="report"] #sec-findings {
   grid-template-columns: 1.4fr 0.7fr 0.9fr 0.8fr 1fr 0.7fr;
   gap: 12px;
   padding: 0 14px 10px;
-  border-bottom: 1px solid var(--g150, #E5E7EB);
+  border-bottom: 1px solid var(--g100, #F3F4F6);
   align-items: baseline;
 }
 body.buckets-adjustable .bucket-thead { grid-template-columns: 1.4fr 0.7fr 0.9fr 0.8fr 1fr 0.7fr 1.2fr; }
@@ -6022,7 +6022,7 @@ body.buckets-adjustable .bucket-thead { grid-template-columns: 1.4fr 0.7fr 0.9fr
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.8px;
-  color: var(--g600);
+  color: var(--g500);
   text-transform: uppercase;
 }
 .bucket-col-sort {
@@ -6054,7 +6054,7 @@ body.buckets-adjustable .bucket-thead { grid-template-columns: 1.4fr 0.7fr 0.9fr
   display: grid;
   grid-template-columns: 1.4fr 0.7fr 0.9fr 0.8fr 1fr 0.7fr;
   gap: 12px;
-  padding: 12px 14px;
+  padding: 14px 14px;
   border-bottom: 1px solid var(--g100, #F3F4F6);
   align-items: center;
   isolation: isolate;
@@ -6062,10 +6062,9 @@ body.buckets-adjustable .bucket-thead { grid-template-columns: 1.4fr 0.7fr 0.9fr
 body.buckets-adjustable .bucket-row.v6 { grid-template-columns: 1.4fr 0.7fr 0.9fr 0.8fr 1fr 0.7fr 1.2fr; }
 .bucket-row.v6:last-child { border-bottom: none; }
 .bucket-row-track {
-  position: absolute;
-  inset: 0 0 0 0;
-  z-index: -1;
-  border-radius: 0;
+  /* Calm-down (phase 2): full-row proportion tint removed — the stacked
+     summary bar + the "% of total" column already carry proportion. */
+  display: none;
 }
 .bucket-cell {
   font-family: var(--font-display);
@@ -6134,6 +6133,11 @@ body.buckets-adjustable .bucket-row.v6 { grid-template-columns: 1.4fr 0.7fr 0.9f
 .bucket-cell-flag .var-low { background: rgba(30, 142, 62, 0.08); color: #137333; }
 .bucket-cell-flag .var-med { background: rgba(0, 0, 0, 0.04); color: var(--g700); }
 .bucket-cell-flag .var-high { background: rgba(249, 171, 0, 0.10); color: #B06000; }
+/* Calm-down (phase 2): low-risk rows show a quiet dash, not a green chip —
+   only Med/High variance draws the eye. Full detail stays on hover (title). */
+.bucket-cell-flag .var-none { color: var(--g300); font-family: var(--font-mono); font-size: 12px; cursor: help; }
+/* Calm-down (phase 2): mute the $/sf rate so Total is the row's hero. */
+.bucket-cell-rate { color: var(--g700); font-weight: 500; }
 
 /* Hide the old stacked-bar styling on legacy elements; v6 owns the bar now */
 .cost-summary .stacked-bar:not(.v6),
@@ -13063,7 +13067,9 @@ function render() {
             <div class="bucket-cell r bucket-cell-pct">${pct.toFixed(1)}%</div>
             <div class="bucket-cell r bucket-cell-bench bench-${benchCls}">${benchStr}</div>
             <div class="bucket-cell bucket-cell-flag">
-              <span class="var-flag ${flag[0]}" title="Cost-weighted risk ${(riskFrac*100).toFixed(1)}% of total project · dispersion (CV) ${(cvVal*100).toFixed(0)}%"><span class="material-symbols-outlined">${flag[2]}</span>${flag[1]}</span>
+              ${flag[0] === 'var-low'
+                ? `<span class="var-none" title="Cost-weighted risk ${(riskFrac*100).toFixed(1)}% of total project · dispersion (CV) ${(cvVal*100).toFixed(0)}%">—</span>`
+                : `<span class="var-flag ${flag[0]}" title="Cost-weighted risk ${(riskFrac*100).toFixed(1)}% of total project · dispersion (CV) ${(cvVal*100).toFixed(0)}%"><span class="material-symbols-outlined">${flag[2]}</span>${flag[1]}</span>`}
             </div>
             ${adjLastCol}
           </div>
