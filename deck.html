@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Should-Cost Estimator — Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#4285F4; --red:#EA4335; --yellow:#FBBC04; --green:#34A853;
+    --ink:#202124; --grey:#5F6368; --line:#DADCE0; --bg:#FFFFFF; --soft:#F8F9FA;
+    --gsans:'Google Sans','Roboto',system-ui,sans-serif;
+    --roboto:'Roboto',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--roboto); color:var(--ink); background:#000;
+    overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  .deck{position:relative;width:100vw;height:100vh}
+  .slide{
+    position:absolute; inset:0; background:var(--bg);
+    display:flex; flex-direction:column; justify-content:center;
+    padding:8vmin 10vmin; opacity:0; pointer-events:none;
+    transition:opacity .35s ease; overflow:hidden;
+  }
+  .slide.active{opacity:1;pointer-events:auto}
+
+  /* brand corner rule */
+  .slide::before{
+    content:""; position:absolute; left:0; top:0; height:6px; width:100%;
+    background:linear-gradient(90deg,var(--blue) 0 25%,var(--red) 25% 50%,var(--yellow) 50% 75%,var(--green) 75% 100%);
+  }
+
+  .eyebrow{
+    font-family:var(--gsans); font-weight:500; letter-spacing:.14em;
+    text-transform:uppercase; font-size:clamp(11px,1.3vmin,15px); color:var(--grey);
+    margin-bottom:2.2vmin;
+  }
+  h1{font-family:var(--gsans);font-weight:700;line-height:1.04;letter-spacing:-.015em}
+  h2{font-family:var(--gsans);font-weight:500;line-height:1.08;letter-spacing:-.01em}
+  .lead{font-weight:300;color:var(--grey);line-height:1.45}
+
+  /* slide 1 — title */
+  .title h1{font-size:clamp(40px,8.2vmin,104px)}
+  .title .sub{font-size:clamp(18px,2.9vmin,34px);font-weight:300;color:var(--grey);margin-top:3vmin;max-width:24ch}
+  .title .tag{margin-top:5vmin;display:inline-flex;align-items:center;gap:14px;font-family:var(--gsans);font-weight:500;font-size:clamp(13px,1.7vmin,19px);color:var(--ink)}
+  .dots{display:inline-flex;gap:7px}
+  .dots i{width:11px;height:11px;border-radius:50%;display:block}
+  .dots i:nth-child(1){background:var(--blue)} .dots i:nth-child(2){background:var(--red)}
+  .dots i:nth-child(3){background:var(--yellow)} .dots i:nth-child(4){background:var(--green)}
+
+  /* generic content head */
+  .head h2{font-size:clamp(28px,5vmin,60px);margin-bottom:2.5vmin;max-width:20ch}
+  .head .lead{font-size:clamp(16px,2.3vmin,27px);max-width:34ch}
+
+  /* what-it-is two-column */
+  .split{display:grid;grid-template-columns:1.15fr 1fr;gap:8vmin;align-items:center;height:100%}
+  .panel{background:var(--soft);border:1px solid var(--line);border-radius:20px;padding:4.5vmin}
+  .panel .row{display:flex;gap:16px;align-items:flex-start;padding:1.6vmin 0;border-bottom:1px solid var(--line)}
+  .panel .row:last-child{border-bottom:0}
+  .panel .k{font-family:var(--gsans);font-weight:500;font-size:clamp(13px,1.7vmin,19px)}
+  .panel .v{color:var(--grey);font-size:clamp(13px,1.6vmin,18px);font-weight:300}
+  .icon{width:clamp(34px,4.6vmin,52px);height:clamp(34px,4.6vmin,52px);border-radius:12px;flex:none;display:grid;place-items:center;font-family:var(--gsans);font-weight:700;color:#fff;font-size:clamp(15px,2vmin,24px)}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:4vmin;margin-top:4vmin}
+  .step{position:relative;padding-top:2vmin}
+  .step .n{font-family:var(--gsans);font-weight:700;font-size:clamp(30px,5.4vmin,66px);line-height:1}
+  .step:nth-child(1) .n{color:var(--blue)} .step:nth-child(2) .n{color:var(--red)} .step:nth-child(3) .n{color:var(--green)}
+  .step h3{font-family:var(--gsans);font-weight:500;font-size:clamp(16px,2.1vmin,25px);margin:2vmin 0 1.2vmin}
+  .step p{color:var(--grey);font-weight:300;font-size:clamp(13px,1.6vmin,18px);line-height:1.45}
+
+  /* trust grid */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:3vmin;margin-top:4vmin}
+  .card{border:1px solid var(--line);border-radius:18px;padding:3.4vmin;background:#fff}
+  .card .chip{display:inline-block;font-family:var(--gsans);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:999px;margin-bottom:2vmin}
+  .card h3{font-family:var(--gsans);font-weight:500;font-size:clamp(15px,2vmin,23px);margin-bottom:1.2vmin}
+  .card p{color:var(--grey);font-weight:300;font-size:clamp(13px,1.55vmin,17px);line-height:1.45}
+
+  /* big stat */
+  .stat{font-family:var(--gsans);font-weight:700;font-size:clamp(56px,13vmin,180px);line-height:.92;letter-spacing:-.02em}
+  .stat .unit{font-weight:500;font-size:.32em;color:var(--grey);letter-spacing:0}
+
+  /* closing */
+  .closing{align-items:flex-start}
+  .linkbox{margin-top:4vmin;background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:2.6vmin 3.4vmin;font-family:var(--roboto)}
+  .linkbox .lbl{font-family:var(--gsans);font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--grey)}
+  .linkbox .url{font-family:'Roboto Mono',monospace;font-size:clamp(15px,2.1vmin,24px);color:var(--blue);margin-top:8px;word-break:break-all}
+
+  /* chrome */
+  .nav{position:fixed;bottom:3.2vmin;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:18px;z-index:20}
+  .pager{display:flex;gap:9px}
+  .pager b{width:9px;height:9px;border-radius:50%;background:var(--line);transition:.25s;cursor:pointer;display:block}
+  .pager b.on{background:var(--ink);width:26px;border-radius:5px}
+  .arrow{border:1px solid var(--line);background:#fff;width:42px;height:42px;border-radius:50%;font-size:20px;color:var(--grey);cursor:pointer;display:grid;place-items:center;transition:.2s;font-family:var(--gsans)}
+  .arrow:hover{border-color:var(--ink);color:var(--ink)}
+  .pageno{position:fixed;top:3.4vmin;right:5vmin;font-family:var(--gsans);font-weight:500;color:var(--line);font-size:14px;z-index:20}
+  .brandmark{position:fixed;top:3.2vmin;left:5vmin;font-family:var(--gsans);font-weight:700;font-size:15px;letter-spacing:-.01em;z-index:20;color:var(--ink)}
+  .brandmark span{color:var(--grey);font-weight:400}
+
+  @media print{
+    body{overflow:visible;background:#fff}
+    .slide{position:relative;opacity:1!important;pointer-events:auto;height:100vh;page-break-after:always;break-after:page}
+    .nav,.pageno{display:none}
+  }
+  @media (max-width:760px){
+    .split{grid-template-columns:1fr;gap:4vmin}
+    .steps,.grid3{grid-template-columns:1fr;gap:2.4vmin}
+  }
+</style>
+</head>
+<body>
+<div class="brandmark">Google REWS <span>· Should-Cost</span></div>
+<div class="pageno"><span id="pn">1</span> / 6</div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 — Title -->
+  <section class="slide title active">
+    <div class="eyebrow">Real Estate &amp; Workplace Services</div>
+    <h1>Should-Cost<br>Estimator</h1>
+    <div class="sub">Benchmark any project against your own portfolio — in seconds.</div>
+    <div class="tag"><span class="dots"><i></i><i></i><i></i><i></i></span> A defensible cost estimate, before you ever open a spreadsheet</div>
+  </section>
+
+  <!-- 2 — What it is -->
+  <section class="slide">
+    <div class="split">
+      <div>
+        <div class="eyebrow">What it is</div>
+        <h2 style="font-size:clamp(28px,5.2vmin,62px)">It's a comparable benchmark — not a bottom-up estimate.</h2>
+        <p class="lead" style="font-size:clamp(16px,2.2vmin,26px);margin-top:2.5vmin;max-width:30ch">
+          You tell it about a project. It finds the most similar projects Google has already built, and shows what they actually cost.
+        </p>
+      </div>
+      <div class="panel">
+        <div class="row"><div class="icon" style="background:var(--blue)">≈</div><div><div class="k">Matches, doesn't guess</div><div class="v">Scored against 138 historical projects by region, size, recency &amp; ownership.</div></div></div>
+        <div class="row"><div class="icon" style="background:var(--green)">$</div><div><div class="k">Speaks in $/GIA</div><div class="v">Weighted-median cost per square foot, by cost bucket.</div></div></div>
+        <div class="row"><div class="icon" style="background:var(--yellow)">±</div><div><div class="k">Shows its uncertainty</div><div class="v">An honest P10–P90 range, not a single false-precision number.</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 — What it does (output) -->
+  <section class="slide">
+    <div class="head">
+      <div class="eyebrow">What you get</div>
+      <h2>One run produces a number a procurement director can read the math on.</h2>
+    </div>
+    <div class="grid3">
+      <div class="card"><span class="chip" style="background:#E8F0FE;color:var(--blue)">Estimate</span><h3>All-in cost &amp; range</h3><p>Total EAC, $/GIA, and an asymmetric confidence band with a 0–100 confidence score.</p></div>
+      <div class="card"><span class="chip" style="background:#FCE8E6;color:var(--red)">Evidence</span><h3>Named comps</h3><p>The actual projects behind the number — name, project #, match %, and adjusted $/GIA.</p></div>
+      <div class="card"><span class="chip" style="background:#E6F4EA;color:var(--green)">Export</span><h3>The Cost Brief</h3><p>A forwardable one-pager: where to push back, where to give ground, and the basis for every figure.</p></div>
+    </div>
+  </section>
+
+  <!-- 4 — How to use -->
+  <section class="slide">
+    <div class="head">
+      <div class="eyebrow">How to use it</div>
+      <h2>Three steps. No training required.</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Describe the project</h3><p>Pick a type, region and city, set the size (GIA) and target dates. Sensible defaults are pre-filled.</p></div>
+      <div class="step"><div class="n">2</div><h3>Run the benchmark</h3><p>See the estimate, the confidence range, and the historical projects it was matched against.</p></div>
+      <div class="step"><div class="n">3</div><h3>Export the Cost Brief</h3><p>Copy or share the evidence pack to take into a budget or vendor conversation.</p></div>
+    </div>
+  </section>
+
+  <!-- 5 — Trust -->
+  <section class="slide">
+    <div class="split">
+      <div>
+        <div class="eyebrow">Why it's trustworthy</div>
+        <div class="stat">100<span class="unit">% traceable</span></div>
+        <p class="lead" style="font-size:clamp(16px,2.2vmin,26px);margin-top:3vmin;max-width:30ch">
+          Every figure traces back to named projects on the page. Back-of-napkin math reproduces the totals.
+        </p>
+      </div>
+      <div class="panel">
+        <div class="row"><div class="icon" style="background:var(--blue)">✓</div><div><div class="k">Glass box, not black box</div><div class="v">The methodology is shown, not hidden.</div></div></div>
+        <div class="row"><div class="icon" style="background:var(--green)">✓</div><div><div class="k">Honest about its limits</div><div class="v">A benchmark against your portfolio — not professional cost advice.</div></div></div>
+        <div class="row"><div class="icon" style="background:var(--grey)">i</div><div><div class="k">Representative data</div><div class="v">Demonstration corpus — not live REWS actuals.</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 — Closing / link -->
+  <section class="slide closing">
+    <div class="eyebrow">Try it</div>
+    <h1 style="font-size:clamp(34px,6.6vmin,82px)">Open it. Run one<br>project. See for yourself.</h1>
+    <div class="linkbox">
+      <div class="lbl">Live tool</div>
+      <div class="url" id="liveurl">https://amwoods44.github.io/should-cost-demo/</div>
+    </div>
+    <div class="tag" style="margin-top:4vmin"><span class="dots"><i></i><i></i><i></i><i></i></span> Google REWS · Should-Cost Estimator</div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button class="arrow" id="prev" aria-label="Previous">‹</button>
+  <div class="pager" id="pager"></div>
+  <button class="arrow" id="next" aria-label="Next">›</button>
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const pager=document.getElementById('pager');
+  const pn=document.getElementById('pn');
+  let i=0;
+  slides.forEach((_,n)=>{const b=document.createElement('b');b.onclick=()=>go(n);pager.appendChild(b)});
+  const bars=[...pager.children];
+  function go(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    bars.forEach((b,k)=>b.classList.toggle('on',k===i));
+    pn.textContent=i+1;
+  }
+  document.getElementById('next').onclick=()=>go(i+1);
+  document.getElementById('prev').onclick=()=>go(i-1);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')go(i+1);
+    if(e.key==='ArrowLeft'||e.key==='PageUp')go(i-1);
+    if(e.key==='Home')go(0); if(e.key==='End')go(slides.length-1);
+  });
+  // touch
+  let x0=null;
+  addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+  addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)go(i+(dx<0?1:-1));x0=null},{passive:true});
+  go(0);
+</script>
+</body>
+</html>
