@@ -1375,6 +1375,25 @@ kbd {
   color: var(--g900);
   font-weight: 500;
 }
+/* Comp-derived duration assist — sits under the schedule summary. */
+.timeline-summary-benchmark {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--g200);
+  font-size: 11.5px;
+  color: var(--g600);
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+.timeline-summary-benchmark.show { display: flex; }
+.timeline-summary-benchmark .material-symbols-outlined { font-size: 14px; color: var(--g500); }
+.timeline-summary-benchmark b { color: var(--g900); font-weight: 600; }
+.timeline-summary-benchmark.tight { color: var(--warning); }
+.timeline-summary-benchmark.tight .material-symbols-outlined,
+.timeline-summary-benchmark.tight b { color: var(--warning); }
 .timeline-summary-edit {
   margin-left: auto;
   display: inline-flex;
@@ -8245,6 +8264,7 @@ body::after {
             <span>Adjust dates</span>
           </button>
         </div>
+        <div class="timeline-summary-benchmark" id="tl-summary-benchmark"></div>
         <div class="timeline-drag-ui" id="timeline-drag-ui">
           <div class="timeline-header">
             <div class="timeline-eyebrow">
@@ -8860,6 +8880,19 @@ function monthsTo(a, b) {
   const [ay, am] = a.split('-').map(Number);
   const [by, bm] = b.split('-').map(Number);
   return (by - ay) * 12 + (bm - am);
+}
+// Comp-derived construction-duration benchmark for a project type: median +
+// P10–P90 range of how long completed comparable projects actually ran
+// (construction start -> RPDC). Powers the date-entry assist.
+function compDurationStats(type) {
+  const durs = PROJECTS
+    .filter(p => p.type === type && isComplete(p.status) && p.constructionStart && p.RPDC)
+    .map(p => monthsTo(p.constructionStart, p.RPDC))
+    .filter(m => m > 0)
+    .sort((a, b) => a - b);
+  if (durs.length < 3) return null;
+  const at = q => durs[Math.min(durs.length - 1, Math.max(0, Math.floor(q * durs.length)))];
+  return { median: at(0.5), lo: at(0.1), hi: at(0.9), n: durs.length };
 }
 function midpoint(a, b) {
   const m = monthsTo(a, b) / 2;
@@ -12475,6 +12508,27 @@ function updateDurationChip(inp) {
   if (endEl) endEl.textContent = fmtMonthYear(inp.rpdc);
   if (sumRpdc) sumRpdc.textContent = fmtMonthYear(inp.rpdc);
   if (sumStart) sumStart.textContent = fmtMonthYear(inp.cs);
+  // Comp-derived duration assist — what comparable projects actually ran, and
+  // whether the user's planned schedule sits inside that range.
+  const benchEl = document.getElementById('tl-summary-benchmark');
+  if (benchEl) {
+    const typeEl = document.getElementById('i-type');
+    const stats = typeEl ? compDurationStats(typeEl.value) : null;
+    if (stats) {
+      const m = (inp.cs && inp.rpdc) ? monthsTo(inp.cs, inp.rpdc) : 0;
+      let verdict = '', cls = 'ok';
+      if (m > 0) {
+        if (m < stats.lo) { verdict = ' · your plan runs tighter'; cls = 'tight'; }
+        else if (m > stats.hi) { verdict = ' · your plan runs longer'; cls = 'loose'; }
+        else { verdict = ' · your plan is in line'; cls = 'ok'; }
+      }
+      benchEl.className = 'timeline-summary-benchmark show ' + cls;
+      benchEl.innerHTML = `<span class="material-symbols-outlined">groups</span>Comparable projects ran <b>~${stats.median} mo</b> (${stats.lo}–${stats.hi})${verdict}`;
+    } else {
+      benchEl.className = 'timeline-summary-benchmark';
+      benchEl.textContent = '';
+    }
+  }
   if (!inp.cs || !inp.rpdc) {
     durEl.textContent = '—';
     if (sumDur) sumDur.textContent = '—';
