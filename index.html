@@ -10372,7 +10372,7 @@ function renderPEInsight(r, inp) {
             <div class="pe-finding-headline">${col.headline}</div>
             <div class="pe-finding-vis">${col.vis}</div>
             <div class="pe-finding-prose">${col.prose}</div>
-            ${col.investigate ? `<a class="pe-finding-investigate" data-chip-type="${col.investigate.type}" href="#">Investigate <span class="material-symbols-outlined">arrow_forward</span></a>` : ''}
+            ${col.investigate && chips.some(c => c.type === col.investigate.type) ? `<a class="pe-finding-investigate" data-chip-type="${col.investigate.type}" href="#">Investigate <span class="material-symbols-outlined">arrow_forward</span></a>` : ''}
           </div>
         `).join('')}
       </div>
@@ -10783,7 +10783,7 @@ function openNegotiationBrief() {
         <div class="brief-pushback-item">
           <div class="brief-pushback-header">
             <span class="brief-pushback-bucket" style="background:${BCOLOR[op.b]}1a; color:${BCOLOR[op.b]}">${op.name}</span>
-            <span class="brief-pushback-delta">+${op.deltaPct.toFixed(0)}% vs median · ${fmt$(op.deltaDollars)} opportunity</span>
+            <span class="brief-pushback-delta">+${op.deltaPct.toFixed(0)}% vs comp median (base scope) · ${fmt$(op.deltaDollars)} opportunity</span>
           </div>
           <div class="brief-pushback-body">
             Your rate: <b>$${Math.round(op.yourRate)}/sf</b> · Comp median: <b>$${Math.round(op.median)}/sf</b>
@@ -10797,7 +10797,7 @@ function openNegotiationBrief() {
     ? brief.giveGround.map(op => `
         <div class="brief-give-item">
           <span class="brief-give-bucket" style="color:${BCOLOR[op.b]}">${op.name}</span>
-          <span class="brief-give-meta">${op.deltaPct.toFixed(0)}% below median · likely to take pressure (${fmt$(Math.abs(op.deltaDollars))} exposure)</span>
+          <span class="brief-give-meta">${op.deltaPct.toFixed(0)}% below comp median (base scope) · likely to take pressure (${fmt$(Math.abs(op.deltaDollars))} exposure)</span>
           ${briefCite}
         </div>`).join('')
     : '<div class="brief-empty-mini">No significant under-pricing flags.</div>';
@@ -10806,7 +10806,7 @@ function openNegotiationBrief() {
     ? `<div class="brief-anchor-card">
         <div class="brief-anchor-id">${brief.anchor.id}</div>
         <div class="brief-anchor-detail">
-          ${brief.anchor.city} · ${brief.anchor.RPDC} · ${fmtN(brief.anchor.GIA)} sqft · ${fmt$(brief.anchor.EAC)} ($${Math.round(brief.anchor.EAC / brief.anchor.GIA)}/GIA) · ${Math.round(brief.anchor.sim * 100)}% match
+          ${brief.anchor.city} · ${fmtMonthYear(brief.anchor.RPDC)} · ${fmtN(brief.anchor.GIA)} sqft · ${fmt$(brief.anchor.EAC)} ($${Math.round(brief.anchor.EAC / brief.anchor.GIA)}/GIA) · ${Math.round(brief.anchor.sim * 100)}% match
         </div>
         <div class="brief-anchor-quote">Your closest historical mirror. Lead with this in any methodology challenge.</div>
       </div>`
@@ -10902,7 +10902,7 @@ function buildPlainBrief(brief) {
   }
   if (brief.anchor) {
     lines.push(`STRONGEST COMP ANCHOR:`);
-    lines.push(`  ${brief.anchor.id} — ${brief.anchor.city}, ${brief.anchor.RPDC}, ${fmtN(brief.anchor.GIA)} sqft, ${fmt$(brief.anchor.EAC)} ($${Math.round(brief.anchor.EAC / brief.anchor.GIA)}/GIA), ${Math.round(brief.anchor.sim * 100)}% match`);
+    lines.push(`  ${brief.anchor.id} — ${brief.anchor.city}, ${fmtMonthYear(brief.anchor.RPDC)}, ${fmtN(brief.anchor.GIA)} sqft, ${fmt$(brief.anchor.EAC)} ($${Math.round(brief.anchor.EAC / brief.anchor.GIA)}/GIA), ${Math.round(brief.anchor.sim * 100)}% match`);
     lines.push('');
   }
   lines.push('BASIS & BID-DAY LANGUAGE:');
@@ -13014,7 +13014,7 @@ function render() {
         <button class="bucket-col bucket-col-sort r ${sortBy === 'rate' ? 'is-active' : ''}" data-sort="rate">$/sf <span class="sort-ind">${sortIcon('rate')}</span></button>
         <button class="bucket-col bucket-col-sort r ${sortBy === 'total' ? 'is-active' : ''}" data-sort="total">Total <span class="sort-ind">${sortIcon('total')}</span></button>
         <button class="bucket-col bucket-col-sort r ${sortBy === 'pct' ? 'is-active' : ''}" data-sort="pct">% of total <span class="sort-ind">${sortIcon('pct')}</span></button>
-        <button class="bucket-col bucket-col-sort r ${sortBy === 'bench' ? 'is-active' : ''}" data-sort="bench">vs comp median <span class="sort-ind">${sortIcon('bench')}</span></button>
+        <button class="bucket-col bucket-col-sort r ${sortBy === 'bench' ? 'is-active' : ''}" data-sort="bench" title="Your all-in rate (incl. occupancy/schedule premiums) vs comp-pool median. The Cost Brief shows the base-scope cut, which excludes premiums.">vs comp median <span class="sort-ind">${sortIcon('bench')}</span></button>
         <span class="bucket-col bucket-col-flag">Variance</span>
       </div>
       ${rowsSorted.map(b => {
@@ -13297,7 +13297,7 @@ function render() {
         <td><span class="comp-id">${p.id}</span></td>
         <td>${p.city}</td>
         <td class="r">${fmtN(p.GIA)}</td>
-        <td class="r">${p.RPDC}</td>
+        <td class="r">${fmtMonthYear(p.RPDC)}</td>
         <td class="r">$${observed}</td>
         <td class="r"><span class="comp-mult">×${cityF}</span></td>
         <td class="r"><span class="comp-mult">×${escF}</span></td>
