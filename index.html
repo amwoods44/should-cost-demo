@@ -3990,25 +3990,31 @@ kbd {
 /* Bucket glass-box — per-row "how this number was derived" card.
    Mirrors .sim-breakdown tokens (var(--g900) surface) so it's dark-safe
    without adding to the Move 7 hardcoded-white backlog. */
-.bucket-info { position: relative; display: inline-flex; align-items: center; margin-left: 6px; color: var(--g400); cursor: help; vertical-align: middle; }
-.bucket-info > .material-symbols-outlined { font-size: 15px; line-height: 1; }
-.bucket-info:hover, .bucket-info:focus-visible { color: var(--accent-ink); outline: none; }
+.bucket-info { position: relative; display: inline-flex; align-items: center; margin-left: 7px; vertical-align: middle; }
+.info-dot { width: 16px; height: 16px; border-radius: 50%; border: 1.4px solid var(--g300); color: var(--g500); font: 600 10px/1 var(--font-display); display: grid; place-items: center; cursor: help; transition: border-color .15s, color .15s; }
+.bucket-info:hover .info-dot, .bucket-info:focus-visible .info-dot { border-color: var(--accent-ink); color: var(--accent-ink); outline: none; }
+/* Glass-box derivation card — themed surface (dark-safe: surf + g-ramp invert
+   together), ported from the concept-readout design language. */
 .bucket-gb {
-  display: none; position: absolute; left: 0; top: calc(100% + 6px);
-  width: 268px; background: #1f2430; color: #fff;
-  border: 1px solid rgba(255,255,255,.12);
-  font-family: var(--font-body); font-size: 12px; line-height: 1.55;
-  padding: 12px 14px; border-radius: var(--r-sm); box-shadow: var(--el-2);
-  z-index: 20; text-align: left; white-space: normal; cursor: default;
+  display: none; position: absolute; left: 0; top: calc(100% + 8px);
+  width: 300px; background: var(--surf); border: 1px solid var(--g200);
+  border-radius: 14px; box-shadow: 0 8px 28px rgba(60,64,67,.22);
+  padding: 16px 18px; z-index: 30; text-align: left; white-space: normal;
+  cursor: default; font-family: var(--font-body);
 }
 .bucket-info:hover .bucket-gb, .bucket-info:focus-within .bucket-gb { display: block; }
-.bgb-h { display: block; font-weight: 600; margin-bottom: 8px; }
-.bgb-line { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
-.bgb-line .lbl { color: rgba(255,255,255,.60); }
-.bgb-line .v { font-family: var(--font-mono); font-feature-settings: 'tnum'; color: #fff; }
-.bgb-tot { border-top: 1px solid rgba(255,255,255,.16); margin-top: 4px; padding-top: 6px; font-weight: 500; }
-.bgb-foot { display: block; color: rgba(255,255,255,.55); font-size: 11px; margin-top: 9px; line-height: 1.45; }
-.bgb-soon { color: #8ab4f8; }
+.bgb-h { font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--ink); margin-bottom: 2px; }
+.bgb-desc { font-size: 12px; color: var(--g600); margin-bottom: 12px; line-height: 1.45; }
+.bgb-calc { font-family: var(--font-mono); font-size: 12px; background: var(--surf-1); border: 1px solid var(--g200); border-radius: 8px; padding: 10px 12px; }
+.bgb-calc .row { display: flex; justify-content: space-between; gap: 14px; padding: 2px 0; }
+.bgb-calc .row .k { color: var(--g600); }
+.bgb-calc .row .v { color: var(--ink); font-variant-numeric: tabular-nums; }
+.bgb-calc .row.res { border-top: 1px solid var(--g200); margin-top: 5px; padding-top: 6px; }
+.bgb-calc .row.res .k { color: var(--g700); font-weight: 500; }
+.bgb-calc .row.res .v { color: var(--accent-ink); font-weight: 600; }
+.bgb-src { margin-top: 11px; font-size: 11px; color: var(--g500); line-height: 1.45; }
+.bgb-src b { color: var(--g700); font-weight: 500; }
+.bgb-soon { display: block; margin-top: 9px; font-size: 11px; color: var(--accent-ink); line-height: 1.45; }
 
 .restore-link {
   background: none;
@@ -8761,6 +8767,8 @@ const CITIES = {
 };
 const BUCKETS = ['GNL', 'STE', 'BSB', 'MEP', 'Interiors', 'FFE', 'Legacy'];
 const BNAME = { GNL: 'General', STE: 'Site', BSB: 'Shell/Core', MEP: 'MEP', Interiors: 'Interiors', FFE: 'FF&E', Legacy: 'Legacy' };
+// One-line plain-English description per bucket — shown in the glass-box card.
+const BDESC = { GNL: 'Soft costs, fees & escalation', STE: 'Site works & enabling', BSB: 'Base building, core & shell', MEP: 'Mechanical, electrical & plumbing', Interiors: 'Fit-out, finishes & partitions', FFE: 'Furniture, fixtures & equipment', Legacy: 'Carried / legacy scope' };
 const BICON = { GNL: 'engineering', STE: 'foundation', BSB: 'apartment', MEP: 'bolt', Interiors: 'chair', FFE: 'desk', Legacy: 'history' };
 // v3.2 desaturated palette — Material You tertiary tones. Distinguishable, less data-viz-default.
 const BCOLOR = { GNL: '#5B8FCC', STE: '#4FA876', BSB: '#D8A437', MEP: '#C95B4F', Interiors: '#8B5DA8', FFE: '#4F9BAD', Legacy: '#C97A5E' };
@@ -13044,14 +13052,17 @@ function render() {
         const benchHas = bench > 0;
         const gbHTML = `
           <span class="bucket-info" tabindex="0" aria-label="How ${BNAME[b]} was calculated">
-            <span class="material-symbols-outlined">info</span>
+            <span class="info-dot">i</span>
             <span class="bucket-gb">
-              <span class="bgb-h">${BNAME[b]} — ${fmt$(amt)}</span>
-              <span class="bgb-line"><span class="lbl">Comp-pool median${benchHas ? ` (${r.comps.length} comps)` : ''}</span><span class="v">${benchHas ? '$' + Math.round(bench) + '/sf' : 'n/a'}</span></span>
-              <span class="bgb-line"><span class="lbl">Your rate${benchHas ? ` (${benchStr} vs comps)` : ''}</span><span class="v">$${Math.round(adj)}/sf</span></span>
-              <span class="bgb-line bgb-tot"><span class="lbl">× ${fmtN(inp.gia)} sqft GIA</span><span class="v">${fmt$(amt)}</span></span>
-              <span class="bgb-foot">Weighted median of matched comps, city-adjusted + escalated to your build year.</span>
-              ${b === 'GNL' ? `<span class="bgb-foot bgb-soon">Live data will drill this into Land + Soft (Architect / PM / Cost Consultant).</span>` : ''}
+              <div class="bgb-h">${BNAME[b]} — ${fmt$(amt)}</div>
+              <div class="bgb-desc">${BDESC[b] || ''}</div>
+              <div class="bgb-calc">
+                <div class="row"><span class="k">Comp-pool median${benchHas ? ` · ${r.comps.length} comps` : ''}</span><span class="v">${benchHas ? '$' + Math.round(bench) + '/sf' : 'n/a'}</span></div>
+                <div class="row"><span class="k">Your rate${benchHas ? ` (${benchStr})` : ''}</span><span class="v">$${Math.round(adj)}/sf</span></div>
+                <div class="row res"><span class="k">× ${fmtN(inp.gia)} sqft GIA</span><span class="v">${fmt$(amt)}</span></div>
+              </div>
+              <div class="bgb-src">Weighted median of matched comps, city-adjusted &amp; escalated to your build year.</div>
+              ${b === 'GNL' ? `<span class="bgb-soon">Live data drills this into Land + Soft (Architect / PM / Cost Consultant).</span>` : ''}
             </span>
           </span>`;
         return `
