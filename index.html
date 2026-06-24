@@ -824,7 +824,7 @@ body {
 }
 .ms-preset:hover {
   border-color: rgba(66, 133, 244, 0.5);
-  background: linear-gradient(180deg, white 0%, #FBFBFE 100%);
+  background: linear-gradient(180deg, var(--surf) 0%, var(--surf-1) 100%);
   box-shadow: 0 2px 12px rgba(66, 133, 244, 0.08);
 }
 .ms-preset:active { transform: scale(0.985); }
@@ -985,7 +985,7 @@ kbd {
   font-size: 12px;
   font-weight: 600;
   color: var(--ink);
-  background: linear-gradient(180deg, white 0%, var(--g50) 100%);
+  background: linear-gradient(180deg, var(--surf) 0%, var(--g50) 100%);
   border: 1px solid var(--g300);
   border-bottom-width: 2px;
   border-radius: 5px;
@@ -1170,6 +1170,13 @@ kbd {
   border-color: rgba(66, 133, 244, 0.4);
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(66, 133, 244, 0.15);
+}
+/* Dark variant: a translucent blue that reads as "active" on a dark surface,
+   instead of a light pill floating on navy. */
+[data-theme="dark"] .gia-chip.active {
+  background: linear-gradient(135deg, rgba(66,133,244,0.26) 0%, rgba(66,133,244,0.14) 100%);
+  color: #aecbfa;
+  border-color: rgba(138,180,248,0.45);
 }
 .gia-slider-wrap {
   position: relative;
