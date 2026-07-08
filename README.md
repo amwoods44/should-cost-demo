@@ -1,4 +1,4 @@
-# Should-Cost Estimator — Demo
+# Cost Benchmark — Demo
 
 Google REWS comparable-based cost benchmark. Single-file static app.
 

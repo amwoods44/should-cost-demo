@@ -1178,6 +1178,13 @@ kbd {
   color: #aecbfa;
   border-color: rgba(138,180,248,0.45);
 }
+/* Move 5: type-aware size pills stack a tier name over the corpus-derived value. */
+.gia-chip { display: flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1.2; }
+.gia-chip-tier { font-size: 9.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--g500); }
+.gia-chip-val { font-size: 12.5px; font-weight: 600; }
+.gia-chip.active .gia-chip-tier { color: inherit; opacity: 0.7; }
+.gia-sanity { margin: 7px 2px 0; font-size: 11px; line-height: 1.35; color: var(--g600); font-variant-numeric: tabular-nums; min-height: 15px; }
+.gia-sanity b { color: var(--g800); font-weight: 600; }
 .gia-slider-wrap {
   position: relative;
   padding: 0 4px 18px;
@@ -3450,9 +3457,19 @@ kbd {
 .scatter-legend-target {
   width: 14px;
   height: 14px;
-  border: 2px solid var(--gblue-700);
+  border: 2px solid #FBBC04;
   border-radius: 50%;
-  background: var(--gyel);
+  background: var(--gblue-500);
+}
+/* §6.4: faded swatch matches the de-emphasized in-market comps; gradient strip explains the
+   similarity color scale the dots use (light blue → deep blue/purple). */
+.scatter-legend-dot-faded { opacity: 0.22; }
+.scatter-legend-sub { color: var(--g500); }
+.scatter-legend-gradient {
+  width: 46px;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #7BAAF7 0%, #4285F4 45%, #1A73E8 75%, #7C3AED 100%);
 }
 
 /* ============================================================================
@@ -3908,6 +3925,12 @@ kbd {
   border-radius: var(--r-md);
   border: 1px solid var(--g100);
   overflow: hidden;
+}
+/* a11y 1.4.10: at narrow widths / high zoom the table is wider than the wrap —
+   let it scroll instead of silently clipping columns. Kept hidden at desktop
+   widths where the table fits (preserves hover-tooltip behavior). */
+@media (max-width: 1100px) {
+  .comp-table-wrap { overflow-x: auto; }
 }
 .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .comp-table th {
@@ -5455,7 +5478,6 @@ body[data-view="report"] .app-bar-context.is-active { display: inline-flex; }
 .hero-amount-sym,
 .hero-amount-unit,
 .pmp-stat b,
-.hero-conf-ring-text,
 .cost-summary-total {
   font-feature-settings: 'tnum' 1, 'lnum' 1 !important;
   font-variant-numeric: tabular-nums lining-nums !important;
@@ -5722,6 +5744,7 @@ body[data-view="report"] .app-bar-context.is-active { display: inline-flex; }
   pointer-events: none;
   display: none;
 }
+[data-theme="dark"] .sticky-actions { background: rgba(18, 24, 34, 0.94); }
 body[data-view="report"] .sticky-actions { display: block; }
 body[data-view="report"] .sticky-actions.is-visible {
   transform: translateY(0);
@@ -5957,11 +5980,17 @@ body[data-view="report"] #sec-findings {
   gap: 3px;
   font-size: 11.5px;
   font-weight: 500;
-  color: #1A4FB8;
+  color: var(--accent-ink);
   text-decoration: none;
   margin-top: 2px;
   align-self: flex-start;
   letter-spacing: -0.05px;
+  /* real <button> doing an in-page action — strip native chrome */
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
 }
 .pe-finding-investigate:hover { text-decoration: underline; }
 .pe-finding-investigate .material-symbols-outlined { font-size: 13px; }
@@ -6966,8 +6995,6 @@ body[data-view="report"] .hero-tpc-total-val {
 .pmp-stat b,
 .hero-secondary .val,
 .hero-range-val,
-.hero-conf-ring-text,
-.hero-conf-bar,
 .conf-score,
 .cost-summary-total {
   font-variant-numeric: tabular-nums;
@@ -7037,6 +7064,16 @@ body[data-view="report"] .hero-tpc-total-val {
   color: var(--g700);
   text-transform: uppercase;
   text-align: right;
+}
+/* Process note, not an operator: the median-adjusted ($adjusted col) is a per-comp
+   weighted median, NOT observed x median-factors — so this row must not read as a
+   multiply chain (median-of-products != product-of-medians). */
+.comp-table-v51 .comp-tfoot-arrow {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--g500);
+  font-style: italic;
+  white-space: nowrap;
 }
 
 /* v4.7: Run zone is now STICKY to the bottom of the sidebar so it's always reachable
@@ -7420,107 +7457,6 @@ body.is-thinking .scr-amount, body.is-thinking .scr-verdict { opacity: 0; }
   .thinking-globe-wrap { width: 96px; height: 96px; }
 }
 
-/* v3.6: Hero confidence block — the deliverable promoted from buried chip to centerpiece */
-.hero-conf-block {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--g150, var(--g200));
-  margin-bottom: 18px;
-}
-.hero-conf-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.hero-conf-ring {
-  position: relative;
-  width: 72px;
-  height: 72px;
-  flex-shrink: 0;
-}
-.hero-conf-ring svg { width: 72px; height: 72px; transform: rotate(-90deg); }
-.hero-conf-ring .hcr-bg {
-  fill: none;
-  stroke: var(--g150, var(--g200));
-  stroke-width: 6;
-}
-.hero-conf-ring .hcr-fill {
-  fill: none;
-  stroke-width: 6;
-  stroke-linecap: round;
-}
-.hero-conf-ring-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.hero-conf-ring-text .hcr-score {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--ink);
-  letter-spacing: -0.5px;
-  font-feature-settings: 'tnum';
-  line-height: 1;
-}
-.hero-conf-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.hero-conf-label {
-  font-size: 10px;
-  font-family: var(--font-mono);
-  font-weight: 600;
-  color: var(--g700);
-  letter-spacing: 1.3px;
-  text-transform: uppercase;
-}
-.hero-conf-band {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--ink);
-  letter-spacing: -0.2px;
-}
-.hero-conf-bars {
-  display: grid;
-  gap: 6px;
-}
-.hero-conf-bar {
-  display: grid;
-  grid-template-columns: 64px 1fr 22px;
-  align-items: center;
-  gap: 8px;
-  font-size: 10.5px;
-  color: var(--g700);
-  font-family: var(--font-body);
-  letter-spacing: 0.1px;
-}
-.hcb-label { color: var(--g700); }
-.hcb-track {
-  height: 4px;
-  background: var(--g150, var(--g200));
-  border-radius: 2px;
-  overflow: hidden;
-}
-.hcb-fill {
-  height: 100%;
-  border-radius: 2px;
-  width: 0;
-}
-.hcb-val {
-  font-family: var(--font-mono);
-  font-feature-settings: 'tnum';
-  text-align: right;
-  font-weight: 500;
-  color: var(--g800);
-  font-size: 11px;
-}
 
 .hero-secondary { text-align: left; }
 .hero-secondary-label {
@@ -7596,24 +7532,6 @@ body.is-thinking .scr-amount, body.is-thinking .scr-verdict { opacity: 0; }
     gap: 28px;
     align-items: center;
   }
-  .hero-conf-block {
-    padding-bottom: 0;
-    border-bottom: none;
-    margin-bottom: 0;
-  }
-  .hero-conf-head { gap: 10px; }
-  .hero-conf-bars {
-    grid-template-columns: repeat(5, 1fr);
-    grid-auto-flow: column;
-    gap: 4px 14px;
-  }
-  .hero-conf-bar {
-    grid-template-columns: 1fr 22px;
-    gap: 3px;
-  }
-  .hcb-track { grid-column: 1 / -1; height: 3px; }
-  .hcb-label { font-size: 9.5px; }
-  .hcb-val { font-size: 10px; }
   .hero-secondary { text-align: right; }
   .hero-secondary .val { font-size: 28px; }
 }
@@ -7660,12 +7578,6 @@ body.is-thinking .scr-amount, body.is-thinking .scr-verdict { opacity: 0; }
     flex-wrap: wrap;
     gap: 24px;
     align-items: center;
-  }
-  .hero-conf-block {
-    padding-bottom: 0;
-    border-bottom: none;
-    margin-bottom: 0;
-    flex: 1 1 320px;
   }
   .hero-secondary { flex: 0 0 auto; }
   .hero-amount-num { font-size: 108px; }
@@ -7887,6 +7799,13 @@ body.sc-detail .sc-detail-caret { transform: rotate(180deg); }
 .scr-verdict .vdot{width:9px;height:9px;border-radius:50%;background:var(--warning);box-shadow:0 0 0 4px color-mix(in srgb,var(--warning) 18%,transparent);}
 .scr-verdict.is-high .vdot{background:var(--success);box-shadow:0 0 0 4px color-mix(in srgb,var(--success) 18%,transparent);}
 .scr-verdict b{color:var(--ink);font-weight:600;}
+/* Estimate-class hint — dotted underline signals the tooltip that explains it's an internal
+   coverage/confidence proxy, not an AACE design-maturity class. Tokenized → auto-themes. */
+.scr-estclass{text-decoration:underline dotted color-mix(in srgb,var(--g700) 45%,transparent);text-underline-offset:3px;cursor:help;}
+/* Thin-sample caveat — shown under the verdict when the comp pool is small (<5). Honest signal
+   that a point figure isn't warranted. Amber, tokenized so it reads correctly in both themes. */
+.scr-thin{margin:14px auto 0;display:flex;width:fit-content;align-items:center;gap:7px;font:500 12.5px/1.35 var(--font-body);color:var(--warning);background:color-mix(in srgb,var(--warning) 10%,transparent);border:1px solid color-mix(in srgb,var(--warning) 28%,transparent);border-radius:8px;padding:7px 11px;max-width:min(560px,100%);text-align:left;}
+.scr-thin .material-symbols-outlined{font-size:16px;flex-shrink:0;}
 /* Proof strip — plain-language trust answer under the hero. All tokenized so it
    auto-themes in dark (no hardcoded white). */
 .scr-proof { max-width: 640px; margin: 28px auto 0; padding: 18px 22px; text-align: left;
@@ -7909,6 +7828,10 @@ body.sc-detail .sc-detail-caret { transform: rotate(180deg); }
 .scr-proof-see .material-symbols-outlined { font-size:15px; }
 .scr-proof-poc { margin-top:13px; padding-top:11px; border-top:1px solid color-mix(in srgb, var(--ink) 8%, transparent);
   font:500 11px/1.4 var(--font-body); letter-spacing:0.03em; text-transform:uppercase; color:var(--g600); }
+/* Factor sourcing status — makes weakness #1 (unsourced factors) visible + trackable. Amber
+   count draws the eye while any factor is still an internal assumption. Tokenized → auto-themes. */
+.scr-proof-factors { margin-top:8px; font:400 11.5px/1.45 var(--font-body); color:var(--g600); }
+.scr-proof-factors b { color:var(--warning); font-weight:600; }
 @media (max-width: 600px) {
   .scr-pc { flex-direction:column; gap:1px; }
   .scr-pc-meta { text-align:left; }
@@ -8151,14 +8074,26 @@ body::after {
             <span class="material-symbols-outlined m3-select-arrow">expand_more</span>
           </button>
           <select id="i-type" hidden>
-            <option value="Office Fit-Out">Office Fit-Out</option>
-            <option value="Office Refresh">Office Refresh</option>
-            <option value="Lab / R&D">Lab / R&amp;D</option>
+            <option value="Fit-Out">Fit-Out</option>
+            <option value="Refresh">Refresh</option>
             <option value="MEP Upgrade">MEP Upgrade</option>
-            <option value="Cafe / Amenity">Cafe / Amenity</option>
             <option value="Capital Improvement">Capital Improvement</option>
+            <option value="Ground-Up">Ground-Up</option>
+          </select>
+          <div class="m3-menu" role="listbox"></div>
+        </div>
+      </div>
+      <div class="m3-field" data-m3-select>
+          <button class="m3-field-trigger" type="button" aria-haspopup="listbox">
+            <span class="m3-field-label">Program Type</span>
+            <span class="m3-select-value"></span>
+            <span class="material-symbols-outlined m3-select-arrow">expand_more</span>
+          </button>
+          <select id="i-program" hidden>
+            <option value="Office">Office</option>
+            <option value="Lab / R&D">Lab / R&amp;D</option>
             <option value="Data Center">Data Center</option>
-            <option value="Ground-Up Construction">Ground-Up Construction</option>
+            <option value="Cafe / Amenity">Cafe / Amenity</option>
           </select>
           <div class="m3-menu" role="listbox"></div>
         </div>
@@ -8245,12 +8180,12 @@ body::after {
             <label class="m3-field-label" for="i-gia">GIA (sqft)</label>
           </div>
         </div>
-        <div class="gia-presets" role="group" aria-label="GIA quick-fill presets">
-          <button type="button" class="gia-chip" data-value="10000">10K</button>
-          <button type="button" class="gia-chip" data-value="25000">25K</button>
-          <button type="button" class="gia-chip" data-value="100000">100K</button>
-          <button type="button" class="gia-chip" data-value="500000">500K</button>
+        <div class="gia-presets" role="group" aria-label="Typical sizes for this project type">
+          <button type="button" class="gia-chip" data-tier="small" data-value="25000"><span class="gia-chip-tier">Small</span><span class="gia-chip-val">25K</span></button>
+          <button type="button" class="gia-chip" data-tier="typical" data-value="40000"><span class="gia-chip-tier">Typical</span><span class="gia-chip-val">40K</span></button>
+          <button type="button" class="gia-chip" data-tier="large" data-value="75000"><span class="gia-chip-tier">Large</span><span class="gia-chip-val">75K</span></button>
         </div>
+        <div class="gia-sanity" id="gia-sanity" aria-live="polite"></div>
         <!-- v5.0: slider removed; text input + 4 presets are enough -->
         <input type="range" id="i-gia-slider" hidden value="500">
       </div>
@@ -8362,8 +8297,10 @@ body::after {
         </div>
       </div>
       <div class="scatter-legend">
-        <div class="scatter-legend-item"><span class="scatter-legend-dot"></span>Comparable project (size = EAC, color = similarity)</div>
         <div class="scatter-legend-item"><span class="scatter-legend-target"></span>Your estimate</div>
+        <div class="scatter-legend-item"><span class="scatter-legend-dot"></span>Modeled comp <span class="scatter-legend-sub">(size = EAC)</span></div>
+        <div class="scatter-legend-item"><span class="scatter-legend-dot scatter-legend-dot-faded"></span>Other comp in market</div>
+        <div class="scatter-legend-item"><span class="scatter-legend-gradient"></span>less &rarr; more similar</div>
       </div>
     </div>
   </div>
@@ -8501,147 +8438,228 @@ body::after {
 
 <script>
 // ============================================================================
+// COST FACTOR REGISTRY — provenance for every hard-coded assumption in the engine
+// ============================================================================
+// Weakness #1: the model's cost factors are internal working assumptions, not sourced or
+// validated against real actuals. This register makes every one VISIBLE and TRACKABLE — what it
+// is, where it lives, its group, and its sourcing status. It DOCUMENTS the engine, it does not
+// drive it (the values still live at their citations), so the numbers stay byte-identical. When
+// REWS sources a factor, update its value at the citation AND flip status/source/dateSourced here.
+//
+//   group 'A' = look-up-able from published industry data / REWS (escalation, city indices,
+//               soft-cost %, contingency %, durations, premiums). MUST be SOURCED, never fitted —
+//               fitting Group A to the demo corpus would destroy its external defensibility.
+//   group 'B' = must be fit/validated from data (similarity weights, score bands, class floors).
+//               Where the nested-CV sensitivity analysis narrows plausible ranges.
+//   status    = 'assumed' (unsourced placeholder) | 'sourced' (published/REWS ref) | 'fitted'
+//               (learned from validated data).
+//
+// `value` is a lazy accessor (null for factors defined inline inside calc(), which are documented
+// by citation only). Lazy so it resolves the engine globals at call time, not registry-load time.
+const FACTOR_REGISTRY = [
+  // ---- Group A: source from published refs / REWS (do NOT fit) ----
+  { key: 'escalation', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'Regional escalation — annual labor / materials %', where: 'src/js/05-engine-calc.js (ESC_MATRIX)',
+    value: () => (typeof ESC_MATRIX !== 'undefined' ? ESC_MATRIX : null) },
+  { key: 'bucketLaborShare', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'Labor share of cost per bucket', where: 'src/js/05-engine-calc.js (BUCKET_LABOR_SHARE)',
+    value: () => (typeof BUCKET_LABOR_SHARE !== 'undefined' ? BUCKET_LABOR_SHARE : null) },
+  { key: 'cityEscalationMod', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'City escalation modifiers', where: 'src/js/05-engine-calc.js (CITY_ESC_MOD)',
+    value: () => (typeof CITY_ESC_MOD !== 'undefined' ? CITY_ESC_MOD : null) },
+  { key: 'cityCostIndex', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'City cost index (price-level normalization)', where: 'src/js/05-engine-calc.js (CITY_COST_INDEX)',
+    value: () => (typeof CITY_COST_INDEX !== 'undefined' ? CITY_COST_INDEX : null) },
+  { key: 'regionAvgIndex', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'Regional average index (city fallback)', where: 'src/js/05-engine-calc.js (REGION_AVG_INDEX)',
+    value: () => (typeof REGION_AVG_INDEX !== 'undefined' ? REGION_AVG_INDEX : null) },
+  { key: 'occupancyPremium', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'Occupied-building premium (×1.20 on MEP + Interiors)', where: 'src/js/05-engine-calc.js:143 (inline)',
+    value: null },
+  { key: 'schedulePremiumCurve', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'Schedule-compression premium curve', where: 'src/js/05-engine-calc.js:152-161 (inline)',
+    value: null },
+  { key: 'typologyDuration', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'Typical construction duration by work scope', where: 'src/js/05-engine-calc.js (TYPOLOGY_DURATION)',
+    value: () => (typeof TYPOLOGY_DURATION !== 'undefined' ? TYPOLOGY_DURATION : null) },
+  { key: 'softCostPct', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'Soft-cost % of construction by program', where: 'src/js/05-engine-calc.js (TYPOLOGY_SOFTCOST_PCT)',
+    value: () => (typeof TYPOLOGY_SOFTCOST_PCT !== 'undefined' ? TYPOLOGY_SOFTCOST_PCT : null) },
+  { key: 'contingencyPct', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'Contingency % of construction by program', where: 'src/js/05-engine-calc.js (TYPOLOGY_CONTINGENCY_PCT)',
+    value: () => (typeof TYPOLOGY_CONTINGENCY_PCT !== 'undefined' ? TYPOLOGY_CONTINGENCY_PCT : null) },
+  { key: 'contingencyConfidenceCoeff', group: 'A', status: 'assumed', source: null, dateSourced: null,
+    label: 'Contingency-vs-confidence scaling coefficient (0.8)', where: 'src/js/05-engine-calc.js:282 (inline)',
+    value: null },
+  // ---- Group B: fit / validate from data (sensitivity analysis, then real REWS actuals) ----
+  { key: 'similarityWeights', group: 'B', status: 'assumed', source: null, dateSourced: null,
+    label: 'Comparable-similarity dimension weights', where: 'src/js/03-constants.js (SIM_WEIGHTS)',
+    value: () => (typeof SIM_WEIGHTS !== 'undefined' ? SIM_WEIGHTS : null) },
+  { key: 'similarityScoreBands', group: 'B', status: 'assumed', source: null, dateSourced: null,
+    label: 'Per-dimension similarity score bands (region / size / recency / ownership / program)',
+    where: 'src/js/04-engine-stats.js:32-42 (inline)', value: null },
+  { key: 'matchFloor', group: 'B', status: 'assumed', source: null, dateSourced: null,
+    label: 'Confidence cap by best-comp similarity', where: 'src/js/05-engine-calc.js:227 (inline)',
+    value: null },
+  { key: 'estimateClassBandFloor', group: 'B', status: 'assumed', source: null, dateSourced: null,
+    label: 'Estimate-class minimum P10/P90 band widths', where: 'src/js/05-engine-calc.js:241 (CLASS_FLOOR, inline)',
+    value: null },
+];
+
+// Roll-up for the in-app sourcing-status surface + docs.
+function factorStatusSummary() {
+  const by = (s) => FACTOR_REGISTRY.filter((f) => f.status === s).length;
+  return {
+    total: FACTOR_REGISTRY.length,
+    sourced: by('sourced'),
+    fitted: by('fitted'),
+    assumed: by('assumed'),
+    groupA: FACTOR_REGISTRY.filter((f) => f.group === 'A').length,
+    groupB: FACTOR_REGISTRY.filter((f) => f.group === 'B').length,
+  };
+}
+// ============================================================================
 // EMBEDDED PROJECT DATA — fallback when not served via HTTP
 // ============================================================================
-const PROJECTS_CSV = `Project Number,Project Name,Project Status,Project Type,Reporting Region,City,NOA,GEA,GIA,Project Start Date,Construction Start Date,RPDC Date,Estimate at Completion (EAC),Currency Rate,Ownership,General (GNL),Site (STE),Base/Building Core & Shell BSB,MEP,Interiors,FF&E,Legacy,EAC Buckets,Range
-AMN-2024-CMB-01,CMB45 — Micro-Kitchen,Complete,Cafe / Amenity,NA,Cambridge,6010,8080,7170,2024-03-20,2024-09-30,2025-05-28,2896763,1.00,Owned,342351,110715,195980,644785,752610,785569,88534,Small,$2–5M
-AMN-2024-LON-01,LON20 — Amenity Center,Complete,Cafe / Amenity,EMEA,London,5080,6830,6090,2023-12-17,2024-06-24,2025-02-19,1897061,1.27,Leased,233258,84598,219412,442059,482977,447182,0,Small,$2–5M
-AMN-2024-MEX-01,MEX23 — Micro-Kitchen,Complete,Cafe / Amenity,LATAM,Mexico City,5110,6880,6120,2024-02-02,2024-08-12,2025-04-09,19806966,0.058,Owned,2447379,823155,1473759,4997397,4889448,4750483,570879,Small,Under $2M
-AMN-2023-MTV-01,MTV45 — Micro-Kitchen,Complete,Cafe / Amenity,NA,Mountain View,9980,12660,11610,2023-03-09,2023-08-21,2024-03-18,4331912,1.00,Owned,370457,154759,330001,1141611,1038817,1161466,121442,Medium,$2–5M
-AMN-2024-MTV-01,MTV44 — Cafe Buildout,Complete,Cafe / Amenity,NA,Mountain View,6700,8490,7770,2023-09-19,2024-03-04,2024-09-30,2932876,1.00,Owned,276490,106457,226663,626020,747588,869087,73866,Small,$2–5M
-AMN-2024-NYC-01,NYC46 — Micro-Kitchen,Complete,Cafe / Amenity,NA,New York,4690,6310,5610,2023-10-13,2024-04-22,2024-12-18,2513781,1.00,Leased,310606,104469,187041,634240,620538,602902,72454,Small,$2–5M
-AMN-2024-SIN-01,SIN14 — Micro-Kitchen,Complete,Cafe / Amenity,APAC,Singapore,6390,8600,7650,2024-02-02,2024-08-12,2025-04-09,3693300,0.74,Owned,456349,153489,274805,931838,911708,885796,106450,Small,$2–5M
-AMN-2024-SVL-01,SVL46 — Amenity Center,Complete,Cafe / Amenity,NA,Sunnyvale,5370,7220,6260,2023-12-02,2024-05-13,2024-12-09,2276027,1.00,Owned,274574,85885,203951,555147,553006,594630,0,Small,$2–5M
-AMN-2024-SYD-01,Pyrmont — Cafe,Complete,Cafe / Amenity,APAC,Sydney,4420,5950,5220,2024-03-24,2024-10-14,2025-07-11,3098433,0.66,Leased,358902,111917,182227,752948,841824,743483,82752,Small,$2–5M
-AMN-2024-TYO-01,TYO44 — Cafe,Complete,Cafe / Amenity,APAC,Tokyo,5620,7120,6440,2024-05-24,2024-11-18,2025-06-16,373039242,0.0066,Owned,40923333,15571515,30677273,88121818,92067273,93395758,12916667,Small,$2–5M
-CAP-2024-CHI-01,CHI16 — Capital Improvement,Complete,Capital Improvement,NA,Chicago,34520,50930,45000,2023-12-18,2024-06-17,2025-03-14,7127676,1.00,Leased,776029,249544,414552,2432650,2287016,804451,187846,Medium,$5–10M
-CAP-2024-HYD-01,HYD13 — Facade Recommissioning,Complete,Capital Improvement,APAC,Hyderabad,42550,59090,53230,2023-09-07,2024-02-19,2024-10-16,332597000,0.012,Owned,33076917,13139583,16720417,105000583,114265000,40281167,9109083,Medium,$2–5M
-CAP-2024-LON-01,LON21 — Facade Recommissioning,Complete,Capital Improvement,EMEA,London,22230,30880,27550,2024-04-02,2024-09-23,2025-05-21,3873914,1.27,Leased,417737,174652,212943,1176487,1257916,522326,112514,Medium,$2–5M
-CAP-2024-MTV-01,MTV46 — Capital Renewal,Complete,Capital Improvement,NA,Mountain View,32690,48170,41590,2023-07-04,2024-01-22,2024-11-17,9232585,1.00,Owned,1152777,354798,505074,2655847,3065046,1127137,291901,Large,$5–10M
-CAP-2024-NYC-01,NYC47 — Roof & Envelope,Complete,Capital Improvement,NA,New York,25570,35510,31610,2023-10-15,2024-04-08,2024-12-04,6399456,1.00,Leased,686090,267227,316040,2059036,1996043,863008,218206,Medium,$5–10M
-CAP-2023-SVL-01,SVL47 — Capital Improvement,Complete,Capital Improvement,NA,Sunnyvale,38490,56740,49330,2023-03-27,2023-10-09,2024-07-05,10485129,1.00,Owned,1344239,507039,755757,3664549,2747895,1273144,286265,Large,$10–20M
-CAP-2024-SAO-01,SAO44 — Capital Renewal,Complete,Capital Improvement,LATAM,São Paulo,26730,39380,33600,2024-02-05,2024-07-15,2025-02-10,16546280,0.20,Owned,2556310,811875,1085000,4881560,4530780,2113400,491010,Medium,$2–5M
-DC-2024-CHW-01,CHW19 — DC Expansion,Complete,Data Center,APAC,Changhua,92080,179620,141600,2023-08-05,2024-01-08,2025-10-29,4634005968,0.031,Owned,432483710,498334000,745958194,2422829355,172134677,219188194,111511065,XL,$20M+
-DC-2025-CHW-01,CHW20 — Compute Hall,Complete,Data Center,APAC,Changhua,105590,205960,161990,2024-12-12,2025-05-19,2027-04-09,5351147000,0.031,Owned,494282000,530101355,777501258,2966180355,190016161,253546710,107334323,XL,$20M+
-DC-2023-CBF-01,CBF39 — DC Expansion,Complete,Data Center,NA,Council Bluffs,87010,169710,133450,2023-04-20,2023-09-25,2025-05-17,147282779,1.00,Owned,14407048,16019920,23661469,74554951,6319052,8577976,2866052,XL,$20M+
-DC-2024-CBF-01,CBF40 — Compute Hall,Complete,Data Center,NA,Council Bluffs,103220,201310,157940,2024-05-28,2024-11-04,2026-07-27,175934145,1.00,Owned,16888004,17457795,25223998,94128737,7172318,10138847,4017956,XL,$20M+
-DC-2023-EEM-01,EEM36 — DC Expansion,Complete,Data Center,EMEA,Eemshaven,75880,148180,120130,2022-12-30,2023-06-30,2025-06-19,133479675,1.08,Owned,9587570,12917657,22857607,74016106,5687300,6292548,2603960,XL,$20M+
-DC-2025-EEM-01,EEM37 — Data Hall,Complete,Data Center,EMEA,Eemshaven,99270,193830,156400,2024-08-08,2025-02-10,2027-04-01,177464793,1.08,Owned,15241069,17621024,30662331,92140492,8472130,10153691,4099340,XL,$20M+
-DC-2024-QRO-01,QRO16 — Compute Hall,Complete,Data Center,LATAM,Querétaro,70870,138360,111400,2023-10-03,2024-04-08,2026-03-29,1233785517,0.058,Owned,95695259,141139276,167897103,712401948,45553776,55168776,23266190,XL,$20M+
-DC-2023-SIN-01,SIN15 — Compute Hall,Complete,Data Center,APAC,Singapore,61360,112820,92800,2023-05-27,2023-11-13,2025-09-03,159739096,0.74,Owned,10209973,14524614,27800300,89347236,6626565,7923115,3110797,XL,$20M+
-DC-2023-TDL-01,TDL30 — Compute Hall,Complete,Data Center,NA,The Dalles,111800,218080,171520,2022-11-05,2023-04-12,2025-01-01,198163292,1.00,Owned,18304215,19630675,28792371,109843378,7036665,9389324,3974796,XL,$20M+
-DC-2024-TDL-01,TDL31 — Data Hall,Complete,Data Center,NA,The Dalles,137550,268280,210520,2024-03-12,2024-08-19,2026-08-09,245487533,1.00,Owned,21082679,20970334,43275779,134715485,7825534,10940917,5396056,XL,$20M+
-GUC-2024-ATL-01,ATL38 — New Build,Complete,Ground-Up Construction,NA,Atlanta,113690,180660,149370,2023-08-16,2024-02-12,2025-10-04,71889898,1.00,Owned,6398529,7715518,24415052,17702497,9727796,4508254,1606487,XL,$20M+
-GUC-2023-AUS-01,AUS30 — Core & Shell,Complete,Ground-Up Construction,NA,Austin,134360,226580,184270,2022-09-02,2023-03-15,2025-03-04,99335261,1.00,Owned,11151369,11434961,32660820,23582079,13237880,5782877,2294324,XL,$20M+
-GUC-2024-AUS-01,AUS31 — Ground-Up,Complete,Ground-Up Construction,NA,Austin,180280,303980,246650,2023-11-06,2024-05-20,2026-06-09,134292295,1.00,Owned,13193478,17915404,50439863,29672720,15103272,6920691,2247713,XL,$20M+
-GUC-2023-DUB-01,DUB42 — Ground-Up,Complete,Ground-Up Construction,EMEA,Dublin,86970,138150,116150,2023-03-23,2023-09-04,2025-07-25,52850831,1.08,Owned,4656467,6659108,16006199,12194862,9008081,3140669,1025881,XL,$20M+
-GUC-2023-HYD-01,HYD14 — New Build,Complete,Ground-Up Construction,APAC,Hyderabad,203740,343710,282170,2022-12-22,2023-06-26,2025-06-15,7057947917,0.012,Owned,635536167,876022083,2627381250,1496110500,870088500,454769667,133011667,XL,$20M+
-GUC-2024-HYD-01,HYD15 — Core & Shell,Complete,Ground-Up Construction,APAC,Hyderabad,234350,395300,323760,2024-04-09,2024-10-14,2026-11-03,8182595667,0.012,Owned,761225333,979161917,2907594917,1897548000,1006023250,547335333,130776500,XL,$20M+
-GUC-2024-MEX-01,MEX24 — New Build,Complete,Ground-Up Construction,LATAM,Mexico City,105820,178420,144430,2024-01-27,2024-08-12,2026-09-01,848925707,0.058,Owned,85511845,108799586,302215345,203493707,94366500,45352534,17454241,XL,$20M+
-GUC-2024-SAO-01,SAO45 — Ground-Up,Complete,Ground-Up Construction,LATAM,São Paulo,130140,219570,180680,2023-07-15,2024-01-15,2025-12-05,360867810,0.20,Owned,35650355,52522465,113275935,78832350,50551005,25383575,6152460,XL,$20M+
-LAB-2024-BLD-01,BLD45 — Lab Buildout,Complete,Lab / R&D,NA,Boulder,8520,13680,11670,2024-03-11,2024-08-26,2025-08-21,5562595,1.00,Owned,681658,278345,806447,2142006,768932,637447,235762,Medium,$5–10M
-LAB-2023-CMB-01,CMB43 — Lab Fit-Out,Complete,Lab / R&D,NA,Cambridge,11290,18120,15490,2023-02-15,2023-07-31,2024-09-23,8758373,1.00,Leased,1138819,502108,1032935,3336335,1335423,1061038,325839,Large,$5–10M
-LAB-2024-CMB-01,CMB42 — Lab Buildout,Complete,Lab / R&D,NA,Cambridge,14200,22800,19440,2023-10-23,2024-04-08,2025-06-02,11119471,1.00,Owned,1362616,556403,1612065,4281810,1537073,1274238,471281,Large,$10–20M
-LAB-2024-HYD-01,HYD12 — R&D Buildout,Complete,Lab / R&D,APAC,Hyderabad,26410,44980,36680,2023-08-13,2024-01-15,2025-02-08,935836417,0.012,Owned,148448917,43773000,96300750,364072000,125398917,111786583,39499667,Large,$10–20M
-LAB-2023-MTV-01,MTV41 — Lab Buildout,Complete,Lab / R&D,NA,Mountain View,12910,22000,18280,2023-03-05,2023-09-11,2024-12-04,12658368,1.00,Owned,1960309,698268,1736687,4670384,1913507,1181126,580997,Large,$10–20M
-LAB-2024-MTV-01,MTV42 — R&D Buildout,Complete,Lab / R&D,NA,Mountain View,17320,29520,24470,2023-11-24,2024-06-03,2025-08-27,17117660,1.00,Owned,2650918,875689,2150164,6804941,2496725,1617176,647813,Large,$10–20M
-LAB-2023-SJC-01,SJC17 — R&D Buildout,Complete,Lab / R&D,NA,San Jose,20340,34670,28670,2023-05-03,2023-11-13,2025-02-05,19560832,1.00,Owned,3041150,965939,2344911,7200565,3151756,2193187,823906,Large,$10–20M
-LAB-2024-SVL-01,SVL44 — Lab Fit-Out,Complete,Lab / R&D,NA,Sunnyvale,15680,26730,22260,2023-08-08,2024-02-12,2025-05-07,15042231,1.00,Owned,1965816,752567,1892945,6364024,1988259,1682689,482460,Large,$10–20M
-LAB-2024-SAO-01,SAO43 — Lab Fit-Out,Complete,Lab / R&D,LATAM,São Paulo,11180,19040,15600,2023-10-03,2024-04-22,2025-08-15,31509920,0.20,Owned,4402050,1503350,3442585,13457420,3984875,3270595,1178030,Medium,$5–10M
-LAB-2024-TYO-01,TYO43 — Lab Buildout,Complete,Lab / R&D,APAC,Tokyo,13400,22830,18710,2023-10-31,2024-05-20,2025-09-12,1995207273,0.0066,Owned,298650455,98483182,224313788,737198333,340312727,192532727,86426212,Large,$10–20M
-MEP-2024-CMB-01,CMB44 — Central Plant Upgrade,Complete,MEP Upgrade,NA,Cambridge,20620,28230,25150,2024-02-18,2024-07-22,2024-12-19,4746111,1.00,Owned,965040,132795,202881,2761227,338155,113043,199718,Medium,$2–5M
-MEP-2024-CHI-01,CHI15 — MEP Upgrade,Complete,MEP Upgrade,NA,Chicago,28350,38800,34410,2023-09-20,2024-02-26,2024-07-25,5613582,1.00,Leased,1056866,179034,488764,3425002,345138,88401,0,Medium,$5–10M
-MEP-2024-LON-01,LON19 — MEP Upgrade,Complete,MEP Upgrade,EMEA,London,22050,30190,27030,2023-11-21,2024-06-10,2025-02-05,3937655,1.27,Leased,769142,118362,360335,2215002,363560,77131,0,Medium,$5–10M
-MEP-2024-MTV-01,MTV43 — Mechanical Upgrade,Complete,MEP Upgrade,NA,Mountain View,29380,37920,34840,2023-09-20,2024-03-18,2024-09-14,6195274,1.00,Owned,1109459,178690,332907,3758793,470236,124901,235765,Medium,$5–10M
-MEP-2024-NYC-01,NYC45 — Central Plant Upgrade,Complete,MEP Upgrade,NA,New York,23900,32710,29220,2023-10-22,2024-05-13,2025-01-08,6119544,1.00,Leased,1169973,167216,259302,3599957,536652,118490,219803,Medium,$5–10M
-MEP-2023-SEA-01,SEA16 — Central Plant Upgrade,Complete,MEP Upgrade,NA,Seattle,24250,31290,29160,2023-06-12,2023-11-27,2024-05-25,4171175,1.00,Owned,614624,112798,227805,2585816,364735,77308,178822,Medium,$2–5M
-MEP-2024-SIN-01,SIN13 — Central Plant Upgrade,Complete,MEP Upgrade,APAC,Singapore,27310,37390,33400,2024-01-28,2024-08-19,2025-04-16,7536573,0.74,Owned,1440891,205936,319346,4433555,660918,145927,270700,Medium,$5–10M
-MEP-2023-SVL-01,SVL45 — Mechanical Upgrade,Complete,MEP Upgrade,NA,Sunnyvale,34590,44640,41310,2023-03-15,2023-09-04,2024-03-02,7008497,1.00,Owned,1103401,223297,298921,4452919,522725,120788,287188,Medium,$5–10M
-OFC-2024-ATL-01,1105 West — L8 Fit-Out,Complete,Office Fit-Out,NA,Atlanta,19860,28430,25160,2023-09-14,2024-02-26,2024-11-22,3553145,1.00,Leased,356412,141582,240222,989980,1149149,534202,130870,Medium,$2–5M
-OFC-2025-ATL-01,Midtown Union — Workplace Fit-Out,Complete,Office Fit-Out,NA,Atlanta,24600,35230,31100,2024-08-05,2025-01-20,2025-10-17,4443071,1.00,Owned,431965,158552,384249,1272138,1345785,651994,188517,Medium,$2–5M
-OFC-2023-AUS-01,Saltillo — Fit-Out,Complete,Office Fit-Out,NA,Austin,14380,20590,17920,2023-03-22,2023-09-18,2024-06-14,2850702,1.00,Leased,299723,100393,224247,879485,759457,469284,125420,Small,$2–5M
-OFC-2024-AUS-01,Block 185 — L3 Fit-Out,Complete,Office Fit-Out,NA,Austin,26500,40300,34990,2024-06-17,2024-12-16,2025-10-12,5626036,1.00,Owned,659750,203816,451696,1444309,1614586,1038523,232261,Medium,$5–10M
-OFC-2025-AUS-01,The Domain — Workplace Fit-Out,Complete,Office Fit-Out,NA,Austin,21340,32450,28110,2024-12-21,2025-06-23,2026-03-20,4567882,1.00,Leased,532694,218000,331880,1249317,1258904,842858,153219,Medium,$2–5M
-OFC-2023-BLD-01,Pearl East — L3 Fit-Out,Complete,Office Fit-Out,NA,Boulder,9150,13910,12050,2022-12-24,2023-06-26,2024-04-21,2155781,1.00,Owned,261017,77304,169739,525350,694870,336307,100296,Small,$2–5M
-OFC-2024-BUE-01,Puerto Madero — Fit-Out,Complete,Office Fit-Out,LATAM,Buenos Aires,14710,22340,18860,2024-04-21,2024-09-23,2025-05-21,2053333636,0.0011,Leased,277848182,76467273,140189091,556496364,511137273,390559091,86251818,Small,$2–5M
-OFC-2024-CMB-01,Kendall — Workplace Fit-Out,Complete,Office Fit-Out,NA,Cambridge,18410,28000,24190,2023-07-28,2024-01-30,2024-11-25,5247813,1.00,Leased,631518,249489,372699,1369712,1627003,821401,202333,Medium,$5–10M
-OFC-2024-CMB-02,325 Main — TI Buildout,Complete,Office Fit-Out,NA,Cambridge,29350,44620,38460,2024-03-12,2024-09-16,2025-07-13,8430401,1.00,Owned,980181,362012,759912,2274594,2443601,1286537,372604,Large,$5–10M
-OFC-2023-CHI-01,Fulton Market — TI Buildout,Complete,Office Fit-Out,NA,Chicago,29350,44620,38460,2023-04-25,2023-10-30,2024-08-25,7153067,1.00,Leased,831668,307162,644774,1929959,2073358,1091607,316149,Medium,$5–10M
-OFC-2024-CHI-01,The Loop — Fit-Out,Complete,Office Fit-Out,NA,Chicago,18660,28360,24390,2024-01-07,2024-07-15,2025-05-11,4582952,1.00,Leased,537573,185108,384406,1326678,1296668,711793,171040,Medium,$2–5M
-OFC-2024-DAL-01,Victory Park — L3 Fit-Out,Complete,Office Fit-Out,NA,Dallas,22870,34780,30120,2023-11-04,2024-05-06,2025-03-02,4702742,1.00,Leased,569397,168636,370278,1146028,1515829,733639,218792,Medium,$2–5M
-OFC-2024-DUB-01,Boland — TI Buildout,Complete,Office Fit-Out,EMEA,Dublin,15440,23450,19840,2023-07-02,2024-01-22,2024-12-17,3500073,1.08,Owned,477347,141626,265275,890192,909181,666563,122576,Medium,$2–5M
-OFC-2024-DUB-02,Grand Canal — Fit-Out,Complete,Office Fit-Out,EMEA,Dublin,21250,32280,27250,2024-03-10,2024-08-12,2025-04-09,4853055,1.08,Leased,656694,180730,331338,1315279,1208072,923085,203856,Medium,$5–10M
-OFC-2024-HYD-01,Kokapet — L10 Fit-Out,Complete,Office Fit-Out,APAC,Hyderabad,27430,39280,34430,2023-09-12,2024-03-04,2024-11-29,256187500,0.012,Owned,27639083,11555667,18785500,68110833,77680000,42534333,9925833,Medium,$2–5M
-OFC-2025-HYD-01,Gachibowli — Workplace Fit-Out,Complete,Office Fit-Out,APAC,Hyderabad,35500,50830,44450,2024-08-04,2025-01-27,2025-10-24,334419250,0.012,Owned,35927417,13993500,22066083,94344583,97555500,55620667,15235333,Medium,$2–5M
-OFC-2023-LON-01,King's Cross S1 — Fit-Out,Complete,Office Fit-Out,EMEA,London,17580,25170,21910,2023-05-24,2023-11-20,2024-08-16,3622650,1.27,Leased,380886,127578,284972,1117643,965112,596362,159383,Medium,$2–5M
-OFC-2024-LON-01,King's Cross S2 — L3 Fit-Out,Complete,Office Fit-Out,EMEA,London,13630,20730,18000,2024-03-25,2024-09-23,2025-07-20,3008162,1.27,Leased,352759,108977,241516,772252,863296,555283,124187,Medium,$2–5M
-OFC-2025-LON-01,Pancras Square — Workplace Fit-Out,Complete,Office Fit-Out,EMEA,London,22860,34760,30110,2024-12-28,2025-06-30,2026-05-26,5085516,1.27,Owned,593059,242704,369489,1390891,1401564,938371,170582,Medium,$5–10M
-OFC-2024-MEX-01,Reforma — Workplace Fit-Out,Complete,Office Fit-Out,LATAM,Mexico City,16760,25490,22080,2023-12-16,2024-06-17,2025-04-13,38354552,0.058,Leased,4472810,1830448,2786655,10489983,10570483,7077121,1286517,Small,$2–5M
-OFC-2025-MEX-01,Polanco — TI Buildout,Complete,Office Fit-Out,LATAM,Mexico City,24550,37320,32250,2024-10-03,2025-04-07,2026-02-01,56610224,0.058,Owned,6384328,2444483,5175207,15940155,14567552,10152052,2226966,Medium,$2–5M
-OFC-2023-MTV-02,Crittenden — TI Buildout,Complete,Office Fit-Out,NA,Mountain View,17970,27280,22930,2022-10-12,2023-03-20,2023-11-15,6015117,1.00,Leased,796129,261453,472170,1442346,1750500,994574,265004,Medium,$5–10M
-OFC-2023-MTV-01,Bay View — Workplace Fit-Out,Complete,Office Fit-Out,NA,Mountain View,13760,20890,17600,2023-03-03,2023-08-07,2024-03-04,4574176,1.00,Owned,561662,136854,361785,1358829,1273158,695468,157725,Medium,$2–5M
-OFC-2024-MTV-01,Charleston East — TI Buildout,Complete,Office Fit-Out,NA,Mountain View,20970,31840,26760,2023-09-06,2024-02-12,2024-10-09,7019822,1.00,Leased,929106,305124,551037,1683261,2042886,1160698,309268,Medium,$5–10M
-OFC-2024-MTV-02,Shoreline — Fit-Out,Complete,Office Fit-Out,NA,Mountain View,31650,48060,40300,2024-07-01,2024-12-09,2025-09-05,10669588,1.00,Leased,1421962,436980,772551,2766239,3032260,1791699,397979,Large,$10–20M
-OFC-2025-MTV-01,Landings — Fit-Out,Complete,Office Fit-Out,NA,Mountain View,10550,16020,13430,2024-11-05,2025-04-15,2025-10-12,3555647,1.00,Owned,473870,145624,257453,921851,1010502,597085,132627,Medium,$2–5M
-OFC-2024-MUC-01,Arnulfpost — L10 Fit-Out,Complete,Office Fit-Out,EMEA,Munich,15680,22450,19680,2023-10-24,2024-04-15,2025-01-10,3310225,1.08,Leased,357127,149312,242729,880067,1003711,549590,128253,Medium,$2–5M
-OFC-2025-MUC-01,Erika-Mann — Workplace Fit-Out,Complete,Office Fit-Out,EMEA,Munich,22090,31630,27660,2024-08-25,2025-02-17,2025-11-14,4704172,1.08,Owned,505380,196842,310397,1327116,1372282,782398,214310,Medium,$5–10M
-OFC-2023-NYC-02,Hudson Square — Workplace Fit-Out,Complete,Office Fit-Out,NA,New York,13720,20860,18070,2022-08-13,2023-02-13,2023-12-10,4345842,1.00,Leased,506801,207403,315748,1188589,1197710,801888,145771,Medium,$2–5M
-OFC-2023-NYC-01,Pier 57 — L3 Fit-Out,Complete,Office Fit-Out,NA,New York,24230,36840,31990,2023-05-08,2023-11-06,2024-10-01,7612626,1.00,Leased,892712,275784,611193,1954304,2184706,1405232,314274,Medium,$5–10M
-OFC-2024-NYC-01,Chelsea Market — Workplace Fit-Out,Complete,Office Fit-Out,NA,New York,19820,30130,26100,2024-04-20,2024-10-21,2025-08-17,6277060,1.00,Leased,732014,299570,456061,1716778,1729952,1158233,210549,Medium,$5–10M
-OFC-2025-NYC-01,111 Eighth — TI Buildout,Complete,Office Fit-Out,NA,New York,30680,46650,40310,2024-09-19,2025-03-24,2026-02-17,9796614,1.00,Owned,1104831,423027,895589,2758503,2520971,1756850,385385,Large,$5–10M
-OFC-2024-PAR-01,Quai 39 — TI Buildout,Complete,Office Fit-Out,EMEA,Paris,18570,26590,23420,2024-01-06,2024-06-24,2025-03-21,4112903,1.08,Leased,404442,136647,330523,1256504,1217540,614569,146821,Medium,$2–5M
-OFC-2023-SFO-01,The Hills — TI Buildout,Complete,Office Fit-Out,NA,San Francisco,35720,51160,44630,2023-01-20,2023-07-17,2024-06-11,10113660,1.00,Leased,1067171,386095,868372,2969485,2799380,1661661,379350,Large,$10–20M
-OFC-2024-SFO-01,Spear Tower — Fit-Out,Complete,Office Fit-Out,NA,San Francisco,24770,35470,30870,2023-10-11,2024-04-08,2025-01-03,7071523,1.00,Leased,743500,249037,556273,2181672,1883927,1164117,311119,Medium,$5–10M
-OFC-2025-SFO-01,One Market — L3 Fit-Out,Complete,Office Fit-Out,NA,San Francisco,16660,25340,22000,2024-07-15,2025-01-13,2025-10-10,5093821,1.00,Owned,597338,184535,408967,1307679,1461848,940280,210289,Medium,$5–10M
-OFC-2023-SJC-01,Downtown West — TI Buildout,Complete,Office Fit-Out,NA,San Jose,39210,59550,49920,2023-04-17,2023-09-25,2024-05-22,9826699,1.00,Owned,1508936,479232,853938,2521297,2496131,1535380,386444,Large,$5–10M
-OFC-2024-SJC-01,Autumn Parkway — Fit-Out,Complete,Office Fit-Out,NA,San Jose,21250,32270,26990,2024-03-09,2024-08-19,2025-05-16,5376199,1.00,Leased,736813,218767,381027,1329603,1703540,759636,226296,Medium,$5–10M
-OFC-2025-SJC-01,SJC15 — L8 Fit-Out,Complete,Office Fit-Out,NA,San Jose,12230,17500,15490,2024-11-28,2025-05-12,2025-12-08,3121786,1.00,Leased,313143,124394,211059,869794,1009640,469348,114982,Medium,$2–5M
-OFC-2023-SEA-01,Fremont — Fit-Out,Complete,Office Fit-Out,NA,Seattle,17530,26640,22700,2023-02-11,2023-08-28,2024-07-23,4835711,1.00,Leased,603117,219921,432788,1340587,1272764,824512,189433,Medium,$2–5M
-OFC-2024-SEA-01,South Lake Union — L6 Fit-Out,Complete,Office Fit-Out,NA,Seattle,24070,36570,31080,2024-04-25,2024-11-11,2025-10-07,6685733,1.00,Owned,823816,281239,545521,1945462,1680521,1134490,211848,Medium,$5–10M
-OFC-2025-SEA-01,Westlake — Workplace Fit-Out,Complete,Office Fit-Out,NA,Seattle,12920,19620,16640,2024-10-29,2025-05-19,2026-03-15,3614215,1.00,Leased,442684,141103,269265,1105212,872704,613950,138211,Medium,$2–5M
-OFC-2024-SIN-01,Pasir Panjang — Workplace Fit-Out,Complete,Office Fit-Out,APAC,Singapore,19050,28970,25090,2023-11-11,2024-05-13,2025-03-09,6501372,0.74,Leased,758173,310276,472358,1778127,1791773,1199623,218073,Medium,$2–5M
-OFC-2025-SIN-01,Mapletree — TI Buildout,Complete,Office Fit-Out,APAC,Singapore,24550,37320,32250,2024-09-26,2025-03-31,2026-01-25,8444646,0.74,Owned,952361,364647,771995,2377820,2173068,1514399,332200,Medium,$5–10M
-OFC-2023-SVL-02,Mathilda — L7 Fit-Out,Complete,Office Fit-Out,NA,Sunnyvale,39210,59570,50290,2022-08-14,2023-01-16,2023-09-13,12765676,1.00,Owned,1555665,411443,1083521,3559822,3634854,1908676,521431,Large,$10–20M
-OFC-2023-SVL-01,Moffett Place — Fit-Out,Complete,Office Fit-Out,NA,Sunnyvale,29220,44400,37570,2023-04-23,2023-11-13,2024-10-08,9446849,1.00,Owned,1189881,340123,632915,2562848,2865362,1446075,335315,Large,$5–10M
-OFC-2024-SVL-01,Java — L7 Fit-Out,Complete,Office Fit-Out,NA,Sunnyvale,17970,27300,23050,2024-01-07,2024-06-10,2025-02-05,5851040,1.00,Leased,713026,188581,496623,1631614,1666005,874826,238993,Medium,$5–10M
-OFC-2025-SVL-01,SVL41 — Workplace Fit-Out,Complete,Office Fit-Out,NA,Sunnyvale,14130,21460,18080,2024-09-18,2025-02-22,2025-08-21,4632744,1.00,Leased,568853,138606,366417,1376228,1289459,704373,159744,Medium,$2–5M
-OFC-2024-SYD-01,Darling Quarter — Fit-Out,Complete,Office Fit-Out,APAC,Sydney,15830,24060,20550,2024-02-12,2024-08-26,2025-06-22,6562636,0.66,Leased,841368,317359,630711,2006958,1605264,980762,238900,Medium,$2–5M
-OFC-2024-SAO-01,Faria Lima — TI Buildout,Complete,Office Fit-Out,LATAM,São Paulo,21660,31020,27320,2023-09-23,2024-03-11,2024-12-06,16038365,0.20,Leased,1577130,532860,1288885,4899765,4747830,2396525,572530,Medium,$2–5M
-OFC-2025-SAO-01,Vila Olímpia — Fit-Out,Complete,Office Fit-Out,LATAM,São Paulo,29590,42370,37230,2024-08-01,2025-01-20,2025-11-16,22104440,0.20,Owned,2359985,1056410,1763660,5421535,6864775,3609350,1014875,Medium,$2–5M
-OFC-2024-TYO-01,Shibuya Stream — Fit-Out,Complete,Office Fit-Out,APAC,Tokyo,17010,24360,21460,2024-02-04,2024-07-22,2025-04-18,665026212,0.0066,Leased,74058939,23992121,58280000,184921364,198214697,95288485,29280455,Medium,$2–5M
-OFC-2025-TYO-01,Roppongi — L9 Fit-Out,Complete,Office Fit-Out,APAC,Tokyo,21800,31210,27430,2024-10-25,2025-04-14,2026-01-09,859698939,0.0066,Owned,95249091,41348182,68334697,253711061,245764242,123858788,30838182,Medium,$5–10M
-OFC-2024-TOR-01,Waterside — L7 Fit-Out,Complete,Office Fit-Out,NA,Toronto,17970,27300,23050,2023-10-08,2024-03-11,2024-11-06,6183096,0.73,Leased,753492,199284,524807,1724211,1760553,924473,252556,Medium,$2–5M
-OFC-2025-TOR-01,King West — Workplace Fit-Out,Complete,Office Fit-Out,NA,Toronto,20830,31640,26650,2024-11-01,2025-04-07,2025-12-03,7216223,0.73,Owned,886078,215900,570752,2143689,2008534,1097171,248827,Medium,$5–10M
-OFC-2024-WDC-01,Capitol Crossing — Workplace Fit-Out,Complete,Office Fit-Out,NA,Washington DC,20980,31860,26770,2023-10-18,2024-03-25,2024-11-20,6186376,1.00,Leased,848653,287525,522717,1925170,1454999,851824,262011,Medium,$5–10M
-OFC-2025-WDC-01,WDC13 — TI Buildout,Complete,Office Fit-Out,NA,Washington DC,15080,22900,19200,2024-09-02,2025-02-10,2025-09-08,3448448,1.00,Leased,529525,168175,299669,884790,875958,538806,135613,Medium,$2–5M
-OFC-2024-ZRH-01,Europaallee — Fit-Out,Complete,Office Fit-Out,EMEA,Zurich,14620,22200,18790,2024-03-17,2024-10-07,2025-09-02,4420057,1.13,Leased,556730,159139,296133,1199123,1340665,676600,156889,Medium,$2–5M
-RFR-2024-ATL-01,ATL37 — Refresh,Complete,Office Refresh,NA,Atlanta,19860,28380,24950,2024-01-30,2024-08-19,2025-03-17,1807665,1.00,Leased,187043,34541,106005,565587,696245,202578,0,Small,Under $2M
-RFR-2023-AUS-01,AUS28 — Workplace Refresh,Complete,Office Refresh,NA,Austin,17230,23210,21290,2023-06-15,2023-11-27,2024-04-25,1327427,1.00,Owned,103955,23885,43656,493342,448921,172088,37486,Small,Under $2M
-RFR-2025-AUS-01,AUS29 — Refresh,Complete,Office Refresh,NA,Austin,20620,27780,25360,2024-09-08,2025-02-24,2025-07-24,1617996,1.00,Leased,149281,29017,105983,559123,599316,172867,0,Small,Under $2M
-RFR-2024-BLD-01,29th Street — Refresh,Complete,Office Refresh,NA,Boulder,11180,15070,13720,2023-10-19,2024-04-08,2024-09-05,974726,1.00,Owned,87150,23407,63038,300310,380254,119958,0,Small,Under $2M
-RFR-2024-CMB-01,Tech Square — Refresh,Complete,Office Refresh,NA,Cambridge,14380,19370,17640,2023-11-23,2024-05-13,2024-10-10,1503864,1.00,Leased,134460,36113,97258,463335,586678,185077,0,Small,Under $2M
-RFR-2023-CHI-01,CHI14 — Workplace Refresh,Complete,Office Refresh,NA,Chicago,25720,34650,31480,2023-06-20,2023-12-11,2024-05-09,2302719,1.00,Leased,206055,51690,63022,761671,868682,285392,66600,Small,$2–5M
-RFR-2024-DUB-01,Barrow Street — Refresh,Complete,Office Refresh,EMEA,Dublin,17530,25070,22350,2024-01-21,2024-07-29,2025-01-25,1560018,1.08,Leased,175638,35035,109119,512605,560052,177787,0,Small,Under $2M
-RFR-2024-HYD-01,WaveRock — Workplace Refresh,Complete,Office Refresh,APAC,Hyderabad,23040,32920,28670,2023-11-29,2024-05-06,2024-09-03,108602583,0.012,Owned,12130917,2390333,3237583,32966250,40009417,13639167,3634167,Small,Under $2M
-RFR-2024-LON-01,6 Pancras — Interiors Refresh,Complete,Office Refresh,EMEA,London,15760,21230,19430,2023-10-10,2024-03-25,2024-08-22,1273806,1.27,Leased,113447,24024,43844,395570,472387,188283,33339,Small,Under $2M
-RFR-2025-LON-01,LON18 — Refresh,Complete,Office Refresh,EMEA,London,20620,27780,25360,2024-07-28,2025-01-13,2025-06-12,1681696,1.27,Owned,155158,30159,110156,581135,622911,179672,0,Small,$2–5M
-RFR-2024-MEX-01,MEX22 — Refresh,Complete,Office Refresh,LATAM,Mexico City,19040,25640,23410,2024-05-19,2024-11-04,2025-04-03,15965897,0.058,Owned,1473069,286328,1045810,5517259,5913862,1705793,0,Small,Under $2M
-RFR-2024-MTV-01,MTV38 — Workplace Refresh,Complete,Office Refresh,NA,Mountain View,14610,20890,18490,2023-08-21,2024-03-04,2024-08-31,1922829,1.00,Owned,202021,44343,65881,570931,739311,260976,56437,Small,Under $2M
-RFR-2024-MTV-02,MTV39 — Interiors Refresh,Complete,Office Refresh,NA,Mountain View,26130,37360,33000,2024-06-08,2024-12-23,2025-07-21,3465771,1.00,Leased,359789,73869,108204,1095357,1275670,467783,118628,Medium,$2–5M
-RFR-2025-MTV-01,MTV40 — Interiors Refresh,Complete,Office Refresh,NA,Mountain View,17970,25690,22690,2024-08-31,2025-03-17,2025-10-13,2382980,1.00,Owned,247382,50790,74399,753141,877120,321637,81566,Small,$2–5M
-RFR-2024-MUC-01,MUC12 — Workplace Refresh,Complete,Office Refresh,EMEA,Munich,13820,19750,17200,2024-04-03,2024-09-09,2025-01-07,1472830,1.08,Owned,164515,32417,43906,447077,542594,184970,49285,Small,Under $2M
-RFR-2024-NYC-01,NYC43 — Refresh,Complete,Office Refresh,NA,New York,12690,17100,15610,2023-09-03,2024-02-19,2024-07-18,1473984,1.00,Leased,135994,26434,96550,509357,545973,157481,0,Small,Under $2M
-RFR-2025-NYC-01,NYC44 — Workplace Refresh,Complete,Office Refresh,NA,New York,17560,23660,21550,2024-10-11,2025-03-31,2025-08-28,2058016,1.00,Leased,188491,49095,60853,753112,729522,220596,54924,Small,$2–5M
-RFR-2024-SFO-01,SFO30 — Workplace Refresh,Complete,Office Refresh,NA,San Francisco,20360,27430,25160,2024-01-04,2024-06-17,2024-11-14,2258958,1.00,Leased,176907,40647,74291,839549,763954,292852,63792,Small,$2–5M
-RFR-2024-SJC-01,SJC16 — Interiors Refresh,Complete,Office Refresh,NA,San Jose,16440,23510,20710,2023-10-05,2024-04-22,2024-11-18,2120708,1.00,Owned,222087,44012,63746,624352,851821,238086,56534,Small,$2–5M
-RFR-2024-SEA-02,SEA15 — Interiors Refresh,Complete,Office Refresh,NA,Seattle,17420,24910,22260,2023-12-12,2024-06-17,2024-12-14,1911617,1.00,Leased,182813,39192,61613,724989,604006,262892,47110,Small,Under $2M
-RFR-2024-SEA-01,SEA14 — Workplace Refresh,Complete,Office Refresh,NA,Seattle,22030,31510,28220,2024-04-25,2024-10-28,2025-04-26,2398460,1.00,Owned,229395,52700,83678,859119,785141,328296,72015,Small,$2–5M
-RFR-2024-SIN-01,SIN12 — Refresh,Complete,Office Refresh,APAC,Singapore,15860,21370,19510,2024-05-05,2024-10-21,2025-03-20,1984886,0.74,Leased,183132,35596,130015,685908,735215,212065,0,Small,Under $2M
-RFR-2024-SVL-01,SVL42 — Interiors Refresh,Complete,Office Refresh,NA,Sunnyvale,19240,27510,24470,2023-07-21,2024-01-29,2024-07-27,2459148,1.00,Owned,235488,41899,64120,851494,917749,300117,66191,Small,$2–5M
-RFR-2024-SVL-02,SVL43 — Refresh,Complete,Office Refresh,NA,Sunnyvale,22580,32290,28650,2024-05-15,2024-11-25,2025-05-24,2908329,1.00,Leased,275730,45199,159862,1055845,1041359,353832,0,Small,$2–5M
-RFR-2024-SAO-01,SAO42 — Interiors Refresh,Complete,Office Refresh,LATAM,São Paulo,16750,23940,20950,2024-02-25,2024-07-29,2024-11-26,6284880,0.20,Leased,635790,100895,199275,2182315,2228315,702060,191795,Small,Under $2M
-RFR-2024-TYO-01,TYO42 — Refresh,Complete,Office Refresh,APAC,Tokyo,20100,28730,25140,2024-04-12,2024-11-04,2025-03-04,398176667,0.0066,Owned,46657879,7103030,24719848,127323636,145531212,43999697,0,Small,$2–5M
-RFR-2024-TOR-01,TOR13 — Interiors Refresh,Complete,Office Refresh,NA,Toronto,16030,22920,20390,2024-03-15,2024-09-23,2025-03-22,2165414,0.73,Leased,207360,36895,56460,749786,808129,264268,58285,Small,Under $2M`;
+const PROJECTS_CSV = `Project Number,Project Name,Project Status,Project Type,Program Type,Reporting Region,City,NOA,GEA,GIA,Project Start Date,Construction Start Date,RPDC Date,Estimate at Completion (EAC),Currency Rate,Ownership,General (GNL),Site (STE),Base/Building Core & Shell BSB,MEP,Interiors,FF&E,Legacy,EAC Buckets,Range
+AMN-2024-CMB-01,CMB45 — Micro-Kitchen,Complete,Fit-Out,Cafe / Amenity,NA,Cambridge,6010,8080,7170,2024-03-20,2024-09-30,2025-05-28,2896763,1.00,Owned,342351,110715,195980,644785,752610,785569,88534,Small,$2–5M
+AMN-2024-LON-01,LON20 — Amenity Center,Complete,Fit-Out,Cafe / Amenity,EMEA,London,5080,6830,6090,2023-12-17,2024-06-24,2025-02-19,1897061,1.27,Leased,233258,84598,219412,442059,482977,447182,0,Small,$2–5M
+AMN-2024-MEX-01,MEX23 — Micro-Kitchen,Complete,Fit-Out,Cafe / Amenity,LATAM,Mexico City,5110,6880,6120,2024-02-02,2024-08-12,2025-04-09,19806966,0.058,Owned,2447379,823155,1473759,4997397,4889448,4750483,570879,Small,Under $2M
+AMN-2023-MTV-01,MTV45 — Micro-Kitchen,Complete,Fit-Out,Cafe / Amenity,NA,Mountain View,9980,12660,11610,2023-03-09,2023-08-21,2024-03-18,4331912,1.00,Owned,370457,154759,330001,1141611,1038817,1161466,121442,Medium,$2–5M
+AMN-2024-MTV-01,MTV44 — Cafe Buildout,Complete,Fit-Out,Cafe / Amenity,NA,Mountain View,6700,8490,7770,2023-09-19,2024-03-04,2024-09-30,2932876,1.00,Owned,276490,106457,226663,626020,747588,869087,73866,Small,$2–5M
+AMN-2024-NYC-01,NYC46 — Micro-Kitchen,Complete,Fit-Out,Cafe / Amenity,NA,New York,4690,6310,5610,2023-10-13,2024-04-22,2024-12-18,2513781,1.00,Leased,310606,104469,187041,634240,620538,602902,72454,Small,$2–5M
+AMN-2024-SIN-01,SIN14 — Micro-Kitchen,Complete,Fit-Out,Cafe / Amenity,APAC,Singapore,6390,8600,7650,2024-02-02,2024-08-12,2025-04-09,3693300,0.74,Owned,456349,153489,274805,931838,911708,885796,106450,Small,$2–5M
+AMN-2024-SVL-01,SVL46 — Amenity Center,Complete,Fit-Out,Cafe / Amenity,NA,Sunnyvale,5370,7220,6260,2023-12-02,2024-05-13,2024-12-09,2276027,1.00,Owned,274574,85885,203951,555147,553006,594630,0,Small,$2–5M
+AMN-2024-SYD-01,Pyrmont — Cafe,Complete,Fit-Out,Cafe / Amenity,APAC,Sydney,4420,5950,5220,2024-03-24,2024-10-14,2025-07-11,3098433,0.66,Leased,358902,111917,182227,752948,841824,743483,82752,Small,$2–5M
+AMN-2024-TYO-01,TYO44 — Cafe,Complete,Fit-Out,Cafe / Amenity,APAC,Tokyo,5620,7120,6440,2024-05-24,2024-11-18,2025-06-16,373039242,0.0066,Owned,40923333,15571515,30677273,88121818,92067273,93395758,12916667,Small,$2–5M
+CAP-2024-CHI-01,CHI16 — Capital Improvement,Complete,Capital Improvement,Office,NA,Chicago,34520,50930,45000,2023-12-18,2024-06-17,2025-03-14,7127676,1.00,Leased,776029,249544,414552,2432650,2287016,804451,187846,Medium,$5–10M
+CAP-2024-HYD-01,HYD13 — Facade Recommissioning,Complete,Capital Improvement,Office,APAC,Hyderabad,42550,59090,53230,2023-09-07,2024-02-19,2024-10-16,332597000,0.012,Owned,33076917,13139583,16720417,105000583,114265000,40281167,9109083,Medium,$2–5M
+CAP-2024-LON-01,LON21 — Facade Recommissioning,Complete,Capital Improvement,Office,EMEA,London,22230,30880,27550,2024-04-02,2024-09-23,2025-05-21,3873914,1.27,Leased,417737,174652,212943,1176487,1257916,522326,112514,Medium,$2–5M
+CAP-2024-MTV-01,MTV46 — Capital Renewal,Complete,Capital Improvement,Office,NA,Mountain View,32690,48170,41590,2023-07-04,2024-01-22,2024-11-17,9232585,1.00,Owned,1152777,354798,505074,2655847,3065046,1127137,291901,Large,$5–10M
+CAP-2024-NYC-01,NYC47 — Roof & Envelope,Complete,Capital Improvement,Office,NA,New York,25570,35510,31610,2023-10-15,2024-04-08,2024-12-04,6399456,1.00,Leased,686090,267227,316040,2059036,1996043,863008,218206,Medium,$5–10M
+CAP-2023-SVL-01,SVL47 — Capital Improvement,Complete,Capital Improvement,Office,NA,Sunnyvale,38490,56740,49330,2023-03-27,2023-10-09,2024-07-05,10485129,1.00,Owned,1344239,507039,755757,3664549,2747895,1273144,286265,Large,$10–20M
+CAP-2024-SAO-01,SAO44 — Capital Renewal,Complete,Capital Improvement,Office,LATAM,São Paulo,26730,39380,33600,2024-02-05,2024-07-15,2025-02-10,16546280,0.20,Owned,2556310,811875,1085000,4881560,4530780,2113400,491010,Medium,$2–5M
+DC-2024-CHW-01,CHW19 — DC Expansion,Complete,Ground-Up,Data Center,APAC,Changhua,92080,179620,141600,2023-08-05,2024-01-08,2025-10-29,4634005968,0.031,Owned,432483710,498334000,745958194,2422829355,172134677,219188194,111511065,XL,$20M+
+DC-2025-CHW-01,CHW20 — Compute Hall,Complete,Ground-Up,Data Center,APAC,Changhua,105590,205960,161990,2024-12-12,2025-05-19,2027-04-09,5351147000,0.031,Owned,494282000,530101355,777501258,2966180355,190016161,253546710,107334323,XL,$20M+
+DC-2023-CBF-01,CBF39 — DC Expansion,Complete,Ground-Up,Data Center,NA,Council Bluffs,87010,169710,133450,2023-04-20,2023-09-25,2025-05-17,147282779,1.00,Owned,14407048,16019920,23661469,74554951,6319052,8577976,2866052,XL,$20M+
+DC-2024-CBF-01,CBF40 — Compute Hall,Complete,Ground-Up,Data Center,NA,Council Bluffs,103220,201310,157940,2024-05-28,2024-11-04,2026-07-27,175934145,1.00,Owned,16888004,17457795,25223998,94128737,7172318,10138847,4017956,XL,$20M+
+DC-2023-EEM-01,EEM36 — DC Expansion,Complete,Ground-Up,Data Center,EMEA,Eemshaven,75880,148180,120130,2022-12-30,2023-06-30,2025-06-19,133479675,1.08,Owned,9587570,12917657,22857607,74016106,5687300,6292548,2603960,XL,$20M+
+DC-2025-EEM-01,EEM37 — Data Hall,Complete,Ground-Up,Data Center,EMEA,Eemshaven,99270,193830,156400,2024-08-08,2025-02-10,2027-04-01,177464793,1.08,Owned,15241069,17621024,30662331,92140492,8472130,10153691,4099340,XL,$20M+
+DC-2024-QRO-01,QRO16 — Compute Hall,Complete,Ground-Up,Data Center,LATAM,Querétaro,70870,138360,111400,2023-10-03,2024-04-08,2026-03-29,1233785517,0.058,Owned,95695259,141139276,167897103,712401948,45553776,55168776,23266190,XL,$20M+
+DC-2023-SIN-01,SIN15 — Compute Hall,Complete,Ground-Up,Data Center,APAC,Singapore,61360,112820,92800,2023-05-27,2023-11-13,2025-09-03,159739096,0.74,Owned,10209973,14524614,27800300,89347236,6626565,7923115,3110797,XL,$20M+
+DC-2023-TDL-01,TDL30 — Compute Hall,Complete,Ground-Up,Data Center,NA,The Dalles,111800,218080,171520,2022-11-05,2023-04-12,2025-01-01,198163292,1.00,Owned,18304215,19630675,28792371,109843378,7036665,9389324,3974796,XL,$20M+
+DC-2024-TDL-01,TDL31 — Data Hall,Complete,Ground-Up,Data Center,NA,The Dalles,137550,268280,210520,2024-03-12,2024-08-19,2026-08-09,245487533,1.00,Owned,21082679,20970334,43275779,134715485,7825534,10940917,5396056,XL,$20M+
+GUC-2024-ATL-01,ATL38 — New Build,Complete,Ground-Up,Office,NA,Atlanta,113690,180660,149370,2023-08-16,2024-02-12,2025-10-04,71889898,1.00,Owned,6398529,7715518,24415052,17702497,9727796,4508254,1606487,XL,$20M+
+GUC-2023-AUS-01,AUS30 — Core & Shell,Complete,Ground-Up,Office,NA,Austin,134360,226580,184270,2022-09-02,2023-03-15,2025-03-04,99335261,1.00,Owned,11151369,11434961,32660820,23582079,13237880,5782877,2294324,XL,$20M+
+GUC-2024-AUS-01,AUS31 — Ground-Up,Complete,Ground-Up,Office,NA,Austin,180280,303980,246650,2023-11-06,2024-05-20,2026-06-09,134292295,1.00,Owned,13193478,17915404,50439863,29672720,15103272,6920691,2247713,XL,$20M+
+GUC-2023-DUB-01,DUB42 — Ground-Up,Complete,Ground-Up,Office,EMEA,Dublin,86970,138150,116150,2023-03-23,2023-09-04,2025-07-25,52850831,1.08,Owned,4656467,6659108,16006199,12194862,9008081,3140669,1025881,XL,$20M+
+GUC-2023-HYD-01,HYD14 — New Build,Complete,Ground-Up,Office,APAC,Hyderabad,203740,343710,282170,2022-12-22,2023-06-26,2025-06-15,7057947917,0.012,Owned,635536167,876022083,2627381250,1496110500,870088500,454769667,133011667,XL,$20M+
+GUC-2024-HYD-01,HYD15 — Core & Shell,Complete,Ground-Up,Office,APAC,Hyderabad,234350,395300,323760,2024-04-09,2024-10-14,2026-11-03,8182595667,0.012,Owned,761225333,979161917,2907594917,1897548000,1006023250,547335333,130776500,XL,$20M+
+GUC-2024-MEX-01,MEX24 — New Build,Complete,Ground-Up,Office,LATAM,Mexico City,105820,178420,144430,2024-01-27,2024-08-12,2026-09-01,848925707,0.058,Owned,85511845,108799586,302215345,203493707,94366500,45352534,17454241,XL,$20M+
+GUC-2024-SAO-01,SAO45 — Ground-Up,Complete,Ground-Up,Office,LATAM,São Paulo,130140,219570,180680,2023-07-15,2024-01-15,2025-12-05,360867810,0.20,Owned,35650355,52522465,113275935,78832350,50551005,25383575,6152460,XL,$20M+
+LAB-2024-BLD-01,BLD45 — Lab Buildout,Complete,Fit-Out,Lab / R&D,NA,Boulder,8520,13680,11670,2024-03-11,2024-08-26,2025-08-21,5562595,1.00,Owned,681658,278345,806447,2142006,768932,637447,235762,Medium,$5–10M
+LAB-2023-CMB-01,CMB43 — Lab Fit-Out,Complete,Fit-Out,Lab / R&D,NA,Cambridge,11290,18120,15490,2023-02-15,2023-07-31,2024-09-23,8758373,1.00,Leased,1138819,502108,1032935,3336335,1335423,1061038,325839,Large,$5–10M
+LAB-2024-CMB-01,CMB42 — Lab Buildout,Complete,Fit-Out,Lab / R&D,NA,Cambridge,14200,22800,19440,2023-10-23,2024-04-08,2025-06-02,11119471,1.00,Owned,1362616,556403,1612065,4281810,1537073,1274238,471281,Large,$10–20M
+LAB-2024-HYD-01,HYD12 — R&D Buildout,Complete,Fit-Out,Lab / R&D,APAC,Hyderabad,26410,44980,36680,2023-08-13,2024-01-15,2025-02-08,935836417,0.012,Owned,148448917,43773000,96300750,364072000,125398917,111786583,39499667,Large,$10–20M
+LAB-2023-MTV-01,MTV41 — Lab Buildout,Complete,Fit-Out,Lab / R&D,NA,Mountain View,12910,22000,18280,2023-03-05,2023-09-11,2024-12-04,12658368,1.00,Owned,1960309,698268,1736687,4670384,1913507,1181126,580997,Large,$10–20M
+LAB-2024-MTV-01,MTV42 — R&D Buildout,Complete,Fit-Out,Lab / R&D,NA,Mountain View,17320,29520,24470,2023-11-24,2024-06-03,2025-08-27,17117660,1.00,Owned,2650918,875689,2150164,6804941,2496725,1617176,647813,Large,$10–20M
+LAB-2023-SJC-01,SJC17 — R&D Buildout,Complete,Fit-Out,Lab / R&D,NA,San Jose,20340,34670,28670,2023-05-03,2023-11-13,2025-02-05,19560832,1.00,Owned,3041150,965939,2344911,7200565,3151756,2193187,823906,Large,$10–20M
+LAB-2024-SVL-01,SVL44 — Lab Fit-Out,Complete,Fit-Out,Lab / R&D,NA,Sunnyvale,15680,26730,22260,2023-08-08,2024-02-12,2025-05-07,15042231,1.00,Owned,1965816,752567,1892945,6364024,1988259,1682689,482460,Large,$10–20M
+LAB-2024-SAO-01,SAO43 — Lab Fit-Out,Complete,Fit-Out,Lab / R&D,LATAM,São Paulo,11180,19040,15600,2023-10-03,2024-04-22,2025-08-15,31509920,0.20,Owned,4402050,1503350,3442585,13457420,3984875,3270595,1178030,Medium,$5–10M
+LAB-2024-TYO-01,TYO43 — Lab Buildout,Complete,Fit-Out,Lab / R&D,APAC,Tokyo,13400,22830,18710,2023-10-31,2024-05-20,2025-09-12,1995207273,0.0066,Owned,298650455,98483182,224313788,737198333,340312727,192532727,86426212,Large,$10–20M
+MEP-2024-CMB-01,CMB44 — Central Plant Upgrade,Complete,MEP Upgrade,Office,NA,Cambridge,20620,28230,25150,2024-02-18,2024-07-22,2024-12-19,4746111,1.00,Owned,965040,132795,202881,2761227,338155,113043,199718,Medium,$2–5M
+MEP-2024-CHI-01,CHI15 — MEP Upgrade,Complete,MEP Upgrade,Office,NA,Chicago,28350,38800,34410,2023-09-20,2024-02-26,2024-07-25,5613582,1.00,Leased,1056866,179034,488764,3425002,345138,88401,0,Medium,$5–10M
+MEP-2024-LON-01,LON19 — MEP Upgrade,Complete,MEP Upgrade,Office,EMEA,London,22050,30190,27030,2023-11-21,2024-06-10,2025-02-05,3937655,1.27,Leased,769142,118362,360335,2215002,363560,77131,0,Medium,$5–10M
+MEP-2024-MTV-01,MTV43 — Mechanical Upgrade,Complete,MEP Upgrade,Office,NA,Mountain View,29380,37920,34840,2023-09-20,2024-03-18,2024-09-14,6195274,1.00,Owned,1109459,178690,332907,3758793,470236,124901,235765,Medium,$5–10M
+MEP-2024-NYC-01,NYC45 — Central Plant Upgrade,Complete,MEP Upgrade,Office,NA,New York,23900,32710,29220,2023-10-22,2024-05-13,2025-01-08,6119544,1.00,Leased,1169973,167216,259302,3599957,536652,118490,219803,Medium,$5–10M
+MEP-2023-SEA-01,SEA16 — Central Plant Upgrade,Complete,MEP Upgrade,Office,NA,Seattle,24250,31290,29160,2023-06-12,2023-11-27,2024-05-25,4171175,1.00,Owned,614624,112798,227805,2585816,364735,77308,178822,Medium,$2–5M
+MEP-2024-SIN-01,SIN13 — Central Plant Upgrade,Complete,MEP Upgrade,Office,APAC,Singapore,27310,37390,33400,2024-01-28,2024-08-19,2025-04-16,7536573,0.74,Owned,1440891,205936,319346,4433555,660918,145927,270700,Medium,$5–10M
+MEP-2023-SVL-01,SVL45 — Mechanical Upgrade,Complete,MEP Upgrade,Office,NA,Sunnyvale,34590,44640,41310,2023-03-15,2023-09-04,2024-03-02,7008497,1.00,Owned,1103401,223297,298921,4452919,522725,120788,287188,Medium,$5–10M
+OFC-2024-ATL-01,1105 West — L8 Fit-Out,Complete,Fit-Out,Office,NA,Atlanta,19860,28430,25160,2023-09-14,2024-02-26,2024-11-22,3553145,1.00,Leased,356412,141582,240222,989980,1149149,534202,130870,Medium,$2–5M
+OFC-2025-ATL-01,Midtown Union — Workplace Fit-Out,Complete,Fit-Out,Office,NA,Atlanta,24600,35230,31100,2024-08-05,2025-01-20,2025-10-17,4443071,1.00,Owned,431965,158552,384249,1272138,1345785,651994,188517,Medium,$2–5M
+OFC-2023-AUS-01,Saltillo — Fit-Out,Complete,Fit-Out,Office,NA,Austin,14380,20590,17920,2023-03-22,2023-09-18,2024-06-14,2850702,1.00,Leased,299723,100393,224247,879485,759457,469284,125420,Small,$2–5M
+OFC-2024-AUS-01,Block 185 — L3 Fit-Out,Complete,Fit-Out,Office,NA,Austin,26500,40300,34990,2024-06-17,2024-12-16,2025-10-12,5626036,1.00,Owned,659750,203816,451696,1444309,1614586,1038523,232261,Medium,$5–10M
+OFC-2025-AUS-01,The Domain — Workplace Fit-Out,Complete,Fit-Out,Office,NA,Austin,21340,32450,28110,2024-12-21,2025-06-23,2026-03-20,4567882,1.00,Leased,532694,218000,331880,1249317,1258904,842858,153219,Medium,$2–5M
+OFC-2023-BLD-01,Pearl East — L3 Fit-Out,Complete,Fit-Out,Office,NA,Boulder,9150,13910,12050,2022-12-24,2023-06-26,2024-04-21,2155781,1.00,Owned,261017,77304,169739,525350,694870,336307,100296,Small,$2–5M
+OFC-2024-BUE-01,Puerto Madero — Fit-Out,Complete,Fit-Out,Office,LATAM,Buenos Aires,14710,22340,18860,2024-04-21,2024-09-23,2025-05-21,2053333636,0.0011,Leased,277848182,76467273,140189091,556496364,511137273,390559091,86251818,Small,$2–5M
+OFC-2024-CMB-01,Kendall — Workplace Fit-Out,Complete,Fit-Out,Office,NA,Cambridge,18410,28000,24190,2023-07-28,2024-01-30,2024-11-25,5247813,1.00,Leased,631518,249489,372699,1369712,1627003,821401,202333,Medium,$5–10M
+OFC-2024-CMB-02,325 Main — TI Buildout,Complete,Fit-Out,Office,NA,Cambridge,29350,44620,38460,2024-03-12,2024-09-16,2025-07-13,8430401,1.00,Owned,980181,362012,759912,2274594,2443601,1286537,372604,Large,$5–10M
+OFC-2023-CHI-01,Fulton Market — TI Buildout,Complete,Fit-Out,Office,NA,Chicago,29350,44620,38460,2023-04-25,2023-10-30,2024-08-25,7153067,1.00,Leased,831668,307162,644774,1929959,2073358,1091607,316149,Medium,$5–10M
+OFC-2024-CHI-01,The Loop — Fit-Out,Complete,Fit-Out,Office,NA,Chicago,18660,28360,24390,2024-01-07,2024-07-15,2025-05-11,4582952,1.00,Leased,537573,185108,384406,1326678,1296668,711793,171040,Medium,$2–5M
+OFC-2024-DAL-01,Victory Park — L3 Fit-Out,Complete,Fit-Out,Office,NA,Dallas,22870,34780,30120,2023-11-04,2024-05-06,2025-03-02,4702742,1.00,Leased,569397,168636,370278,1146028,1515829,733639,218792,Medium,$2–5M
+OFC-2024-DUB-01,Boland — TI Buildout,Complete,Fit-Out,Office,EMEA,Dublin,15440,23450,19840,2023-07-02,2024-01-22,2024-12-17,3500073,1.08,Owned,477347,141626,265275,890192,909181,666563,122576,Medium,$2–5M
+OFC-2024-DUB-02,Grand Canal — Fit-Out,Complete,Fit-Out,Office,EMEA,Dublin,21250,32280,27250,2024-03-10,2024-08-12,2025-04-09,4853055,1.08,Leased,656694,180730,331338,1315279,1208072,923085,203856,Medium,$5–10M
+OFC-2024-HYD-01,Kokapet — L10 Fit-Out,Complete,Fit-Out,Office,APAC,Hyderabad,27430,39280,34430,2023-09-12,2024-03-04,2024-11-29,256187500,0.012,Owned,27639083,11555667,18785500,68110833,77680000,42534333,9925833,Medium,$2–5M
+OFC-2025-HYD-01,Gachibowli — Workplace Fit-Out,Complete,Fit-Out,Office,APAC,Hyderabad,35500,50830,44450,2024-08-04,2025-01-27,2025-10-24,334419250,0.012,Owned,35927417,13993500,22066083,94344583,97555500,55620667,15235333,Medium,$2–5M
+OFC-2023-LON-01,King's Cross S1 — Fit-Out,Complete,Fit-Out,Office,EMEA,London,17580,25170,21910,2023-05-24,2023-11-20,2024-08-16,3622650,1.27,Leased,380886,127578,284972,1117643,965112,596362,159383,Medium,$2–5M
+OFC-2024-LON-01,King's Cross S2 — L3 Fit-Out,Complete,Fit-Out,Office,EMEA,London,13630,20730,18000,2024-03-25,2024-09-23,2025-07-20,3008162,1.27,Leased,352759,108977,241516,772252,863296,555283,124187,Medium,$2–5M
+OFC-2025-LON-01,Pancras Square — Workplace Fit-Out,Complete,Fit-Out,Office,EMEA,London,22860,34760,30110,2024-12-28,2025-06-30,2026-05-26,5085516,1.27,Owned,593059,242704,369489,1390891,1401564,938371,170582,Medium,$5–10M
+OFC-2024-MEX-01,Reforma — Workplace Fit-Out,Complete,Fit-Out,Office,LATAM,Mexico City,16760,25490,22080,2023-12-16,2024-06-17,2025-04-13,38354552,0.058,Leased,4472810,1830448,2786655,10489983,10570483,7077121,1286517,Small,$2–5M
+OFC-2025-MEX-01,Polanco — TI Buildout,Complete,Fit-Out,Office,LATAM,Mexico City,24550,37320,32250,2024-10-03,2025-04-07,2026-02-01,56610224,0.058,Owned,6384328,2444483,5175207,15940155,14567552,10152052,2226966,Medium,$2–5M
+OFC-2023-MTV-02,Crittenden — TI Buildout,Complete,Fit-Out,Office,NA,Mountain View,17970,27280,22930,2022-10-12,2023-03-20,2023-11-15,6015117,1.00,Leased,796129,261453,472170,1442346,1750500,994574,265004,Medium,$5–10M
+OFC-2023-MTV-01,Bay View — Workplace Fit-Out,Complete,Fit-Out,Office,NA,Mountain View,13760,20890,17600,2023-03-03,2023-08-07,2024-03-04,4574176,1.00,Owned,561662,136854,361785,1358829,1273158,695468,157725,Medium,$2–5M
+OFC-2024-MTV-01,Charleston East — TI Buildout,Complete,Fit-Out,Office,NA,Mountain View,20970,31840,26760,2023-09-06,2024-02-12,2024-10-09,7019822,1.00,Leased,929106,305124,551037,1683261,2042886,1160698,309268,Medium,$5–10M
+OFC-2024-MTV-02,Shoreline — Fit-Out,Complete,Fit-Out,Office,NA,Mountain View,31650,48060,40300,2024-07-01,2024-12-09,2025-09-05,10669588,1.00,Leased,1421962,436980,772551,2766239,3032260,1791699,397979,Large,$10–20M
+OFC-2025-MTV-01,Landings — Fit-Out,Complete,Fit-Out,Office,NA,Mountain View,10550,16020,13430,2024-11-05,2025-04-15,2025-10-12,3555647,1.00,Owned,473870,145624,257453,921851,1010502,597085,132627,Medium,$2–5M
+OFC-2024-MUC-01,Arnulfpost — L10 Fit-Out,Complete,Fit-Out,Office,EMEA,Munich,15680,22450,19680,2023-10-24,2024-04-15,2025-01-10,3310225,1.08,Leased,357127,149312,242729,880067,1003711,549590,128253,Medium,$2–5M
+OFC-2025-MUC-01,Erika-Mann — Workplace Fit-Out,Complete,Fit-Out,Office,EMEA,Munich,22090,31630,27660,2024-08-25,2025-02-17,2025-11-14,4704172,1.08,Owned,505380,196842,310397,1327116,1372282,782398,214310,Medium,$5–10M
+OFC-2023-NYC-02,Hudson Square — Workplace Fit-Out,Complete,Fit-Out,Office,NA,New York,13720,20860,18070,2022-08-13,2023-02-13,2023-12-10,4345842,1.00,Leased,506801,207403,315748,1188589,1197710,801888,145771,Medium,$2–5M
+OFC-2023-NYC-01,Pier 57 — L3 Fit-Out,Complete,Fit-Out,Office,NA,New York,24230,36840,31990,2023-05-08,2023-11-06,2024-10-01,7612626,1.00,Leased,892712,275784,611193,1954304,2184706,1405232,314274,Medium,$5–10M
+OFC-2024-NYC-01,Chelsea Market — Workplace Fit-Out,Complete,Fit-Out,Office,NA,New York,19820,30130,26100,2024-04-20,2024-10-21,2025-08-17,6277060,1.00,Leased,732014,299570,456061,1716778,1729952,1158233,210549,Medium,$5–10M
+OFC-2025-NYC-01,111 Eighth — TI Buildout,Complete,Fit-Out,Office,NA,New York,30680,46650,40310,2024-09-19,2025-03-24,2026-02-17,9796614,1.00,Owned,1104831,423027,895589,2758503,2520971,1756850,385385,Large,$5–10M
+OFC-2024-PAR-01,Quai 39 — TI Buildout,Complete,Fit-Out,Office,EMEA,Paris,18570,26590,23420,2024-01-06,2024-06-24,2025-03-21,4112903,1.08,Leased,404442,136647,330523,1256504,1217540,614569,146821,Medium,$2–5M
+OFC-2023-SFO-01,The Hills — TI Buildout,Complete,Fit-Out,Office,NA,San Francisco,35720,51160,44630,2023-01-20,2023-07-17,2024-06-11,10113660,1.00,Leased,1067171,386095,868372,2969485,2799380,1661661,379350,Large,$10–20M
+OFC-2024-SFO-01,Spear Tower — Fit-Out,Complete,Fit-Out,Office,NA,San Francisco,24770,35470,30870,2023-10-11,2024-04-08,2025-01-03,7071523,1.00,Leased,743500,249037,556273,2181672,1883927,1164117,311119,Medium,$5–10M
+OFC-2025-SFO-01,One Market — L3 Fit-Out,Complete,Fit-Out,Office,NA,San Francisco,16660,25340,22000,2024-07-15,2025-01-13,2025-10-10,5093821,1.00,Owned,597338,184535,408967,1307679,1461848,940280,210289,Medium,$5–10M
+OFC-2023-SJC-01,Downtown West — TI Buildout,Complete,Fit-Out,Office,NA,San Jose,39210,59550,49920,2023-04-17,2023-09-25,2024-05-22,9826699,1.00,Owned,1508936,479232,853938,2521297,2496131,1535380,386444,Large,$5–10M
+OFC-2024-SJC-01,Autumn Parkway — Fit-Out,Complete,Fit-Out,Office,NA,San Jose,21250,32270,26990,2024-03-09,2024-08-19,2025-05-16,5376199,1.00,Leased,736813,218767,381027,1329603,1703540,759636,226296,Medium,$5–10M
+OFC-2025-SJC-01,SJC15 — L8 Fit-Out,Complete,Fit-Out,Office,NA,San Jose,12230,17500,15490,2024-11-28,2025-05-12,2025-12-08,3121786,1.00,Leased,313143,124394,211059,869794,1009640,469348,114982,Medium,$2–5M
+OFC-2023-SEA-01,Fremont — Fit-Out,Complete,Fit-Out,Office,NA,Seattle,17530,26640,22700,2023-02-11,2023-08-28,2024-07-23,4835711,1.00,Leased,603117,219921,432788,1340587,1272764,824512,189433,Medium,$2–5M
+OFC-2024-SEA-01,South Lake Union — L6 Fit-Out,Complete,Fit-Out,Office,NA,Seattle,24070,36570,31080,2024-04-25,2024-11-11,2025-10-07,6685733,1.00,Owned,823816,281239,545521,1945462,1680521,1134490,211848,Medium,$5–10M
+OFC-2025-SEA-01,Westlake — Workplace Fit-Out,Complete,Fit-Out,Office,NA,Seattle,12920,19620,16640,2024-10-29,2025-05-19,2026-03-15,3614215,1.00,Leased,442684,141103,269265,1105212,872704,613950,138211,Medium,$2–5M
+OFC-2024-SIN-01,Pasir Panjang — Workplace Fit-Out,Complete,Fit-Out,Office,APAC,Singapore,19050,28970,25090,2023-11-11,2024-05-13,2025-03-09,6501372,0.74,Leased,758173,310276,472358,1778127,1791773,1199623,218073,Medium,$2–5M
+OFC-2025-SIN-01,Mapletree — TI Buildout,Complete,Fit-Out,Office,APAC,Singapore,24550,37320,32250,2024-09-26,2025-03-31,2026-01-25,8444646,0.74,Owned,952361,364647,771995,2377820,2173068,1514399,332200,Medium,$5–10M
+OFC-2023-SVL-02,Mathilda — L7 Fit-Out,Complete,Fit-Out,Office,NA,Sunnyvale,39210,59570,50290,2022-08-14,2023-01-16,2023-09-13,12765676,1.00,Owned,1555665,411443,1083521,3559822,3634854,1908676,521431,Large,$10–20M
+OFC-2023-SVL-01,Moffett Place — Fit-Out,Complete,Fit-Out,Office,NA,Sunnyvale,29220,44400,37570,2023-04-23,2023-11-13,2024-10-08,9446849,1.00,Owned,1189881,340123,632915,2562848,2865362,1446075,335315,Large,$5–10M
+OFC-2024-SVL-01,Java — L7 Fit-Out,Complete,Fit-Out,Office,NA,Sunnyvale,17970,27300,23050,2024-01-07,2024-06-10,2025-02-05,5851040,1.00,Leased,713026,188581,496623,1631614,1666005,874826,238993,Medium,$5–10M
+OFC-2025-SVL-01,SVL41 — Workplace Fit-Out,Complete,Fit-Out,Office,NA,Sunnyvale,14130,21460,18080,2024-09-18,2025-02-22,2025-08-21,4632744,1.00,Leased,568853,138606,366417,1376228,1289459,704373,159744,Medium,$2–5M
+OFC-2024-SYD-01,Darling Quarter — Fit-Out,Complete,Fit-Out,Office,APAC,Sydney,15830,24060,20550,2024-02-12,2024-08-26,2025-06-22,6562636,0.66,Leased,841368,317359,630711,2006958,1605264,980762,238900,Medium,$2–5M
+OFC-2024-SAO-01,Faria Lima — TI Buildout,Complete,Fit-Out,Office,LATAM,São Paulo,21660,31020,27320,2023-09-23,2024-03-11,2024-12-06,16038365,0.20,Leased,1577130,532860,1288885,4899765,4747830,2396525,572530,Medium,$2–5M
+OFC-2025-SAO-01,Vila Olímpia — Fit-Out,Complete,Fit-Out,Office,LATAM,São Paulo,29590,42370,37230,2024-08-01,2025-01-20,2025-11-16,22104440,0.20,Owned,2359985,1056410,1763660,5421535,6864775,3609350,1014875,Medium,$2–5M
+OFC-2024-TYO-01,Shibuya Stream — Fit-Out,Complete,Fit-Out,Office,APAC,Tokyo,17010,24360,21460,2024-02-04,2024-07-22,2025-04-18,665026212,0.0066,Leased,74058939,23992121,58280000,184921364,198214697,95288485,29280455,Medium,$2–5M
+OFC-2025-TYO-01,Roppongi — L9 Fit-Out,Complete,Fit-Out,Office,APAC,Tokyo,21800,31210,27430,2024-10-25,2025-04-14,2026-01-09,859698939,0.0066,Owned,95249091,41348182,68334697,253711061,245764242,123858788,30838182,Medium,$5–10M
+OFC-2024-TOR-01,Waterside — L7 Fit-Out,Complete,Fit-Out,Office,NA,Toronto,17970,27300,23050,2023-10-08,2024-03-11,2024-11-06,6183096,0.73,Leased,753492,199284,524807,1724211,1760553,924473,252556,Medium,$2–5M
+OFC-2025-TOR-01,King West — Workplace Fit-Out,Complete,Fit-Out,Office,NA,Toronto,20830,31640,26650,2024-11-01,2025-04-07,2025-12-03,7216223,0.73,Owned,886078,215900,570752,2143689,2008534,1097171,248827,Medium,$5–10M
+OFC-2024-WDC-01,Capitol Crossing — Workplace Fit-Out,Complete,Fit-Out,Office,NA,Washington DC,20980,31860,26770,2023-10-18,2024-03-25,2024-11-20,6186376,1.00,Leased,848653,287525,522717,1925170,1454999,851824,262011,Medium,$5–10M
+OFC-2025-WDC-01,WDC13 — TI Buildout,Complete,Fit-Out,Office,NA,Washington DC,15080,22900,19200,2024-09-02,2025-02-10,2025-09-08,3448448,1.00,Leased,529525,168175,299669,884790,875958,538806,135613,Medium,$2–5M
+OFC-2024-ZRH-01,Europaallee — Fit-Out,Complete,Fit-Out,Office,EMEA,Zurich,14620,22200,18790,2024-03-17,2024-10-07,2025-09-02,4420057,1.13,Leased,556730,159139,296133,1199123,1340665,676600,156889,Medium,$2–5M
+RFR-2024-ATL-01,ATL37 — Refresh,Complete,Refresh,Office,NA,Atlanta,19860,28380,24950,2024-01-30,2024-08-19,2025-03-17,1807665,1.00,Leased,187043,34541,106005,565587,696245,202578,0,Small,Under $2M
+RFR-2023-AUS-01,AUS28 — Workplace Refresh,Complete,Refresh,Office,NA,Austin,17230,23210,21290,2023-06-15,2023-11-27,2024-04-25,1327427,1.00,Owned,103955,23885,43656,493342,448921,172088,37486,Small,Under $2M
+RFR-2025-AUS-01,AUS29 — Refresh,Complete,Refresh,Office,NA,Austin,20620,27780,25360,2024-09-08,2025-02-24,2025-07-24,1617996,1.00,Leased,149281,29017,105983,559123,599316,172867,0,Small,Under $2M
+RFR-2024-BLD-01,29th Street — Refresh,Complete,Refresh,Office,NA,Boulder,11180,15070,13720,2023-10-19,2024-04-08,2024-09-05,974726,1.00,Owned,87150,23407,63038,300310,380254,119958,0,Small,Under $2M
+RFR-2024-CMB-01,Tech Square — Refresh,Complete,Refresh,Office,NA,Cambridge,14380,19370,17640,2023-11-23,2024-05-13,2024-10-10,1503864,1.00,Leased,134460,36113,97258,463335,586678,185077,0,Small,Under $2M
+RFR-2023-CHI-01,CHI14 — Workplace Refresh,Complete,Refresh,Office,NA,Chicago,25720,34650,31480,2023-06-20,2023-12-11,2024-05-09,2302719,1.00,Leased,206055,51690,63022,761671,868682,285392,66600,Small,$2–5M
+RFR-2024-DUB-01,Barrow Street — Refresh,Complete,Refresh,Office,EMEA,Dublin,17530,25070,22350,2024-01-21,2024-07-29,2025-01-25,1560018,1.08,Leased,175638,35035,109119,512605,560052,177787,0,Small,Under $2M
+RFR-2024-HYD-01,WaveRock — Workplace Refresh,Complete,Refresh,Office,APAC,Hyderabad,23040,32920,28670,2023-11-29,2024-05-06,2024-09-03,108602583,0.012,Owned,12130917,2390333,3237583,32966250,40009417,13639167,3634167,Small,Under $2M
+RFR-2024-LON-01,6 Pancras — Interiors Refresh,Complete,Refresh,Office,EMEA,London,15760,21230,19430,2023-10-10,2024-03-25,2024-08-22,1273806,1.27,Leased,113447,24024,43844,395570,472387,188283,33339,Small,Under $2M
+RFR-2025-LON-01,LON18 — Refresh,Complete,Refresh,Office,EMEA,London,20620,27780,25360,2024-07-28,2025-01-13,2025-06-12,1681696,1.27,Owned,155158,30159,110156,581135,622911,179672,0,Small,$2–5M
+RFR-2024-MEX-01,MEX22 — Refresh,Complete,Refresh,Office,LATAM,Mexico City,19040,25640,23410,2024-05-19,2024-11-04,2025-04-03,15965897,0.058,Owned,1473069,286328,1045810,5517259,5913862,1705793,0,Small,Under $2M
+RFR-2024-MTV-01,MTV38 — Workplace Refresh,Complete,Refresh,Office,NA,Mountain View,14610,20890,18490,2023-08-21,2024-03-04,2024-08-31,1922829,1.00,Owned,202021,44343,65881,570931,739311,260976,56437,Small,Under $2M
+RFR-2024-MTV-02,MTV39 — Interiors Refresh,Complete,Refresh,Office,NA,Mountain View,26130,37360,33000,2024-06-08,2024-12-23,2025-07-21,3465771,1.00,Leased,359789,73869,108204,1095357,1275670,467783,118628,Medium,$2–5M
+RFR-2025-MTV-01,MTV40 — Interiors Refresh,Complete,Refresh,Office,NA,Mountain View,17970,25690,22690,2024-08-31,2025-03-17,2025-10-13,2382980,1.00,Owned,247382,50790,74399,753141,877120,321637,81566,Small,$2–5M
+RFR-2024-MUC-01,MUC12 — Workplace Refresh,Complete,Refresh,Office,EMEA,Munich,13820,19750,17200,2024-04-03,2024-09-09,2025-01-07,1472830,1.08,Owned,164515,32417,43906,447077,542594,184970,49285,Small,Under $2M
+RFR-2024-NYC-01,NYC43 — Refresh,Complete,Refresh,Office,NA,New York,12690,17100,15610,2023-09-03,2024-02-19,2024-07-18,1473984,1.00,Leased,135994,26434,96550,509357,545973,157481,0,Small,Under $2M
+RFR-2025-NYC-01,NYC44 — Workplace Refresh,Complete,Refresh,Office,NA,New York,17560,23660,21550,2024-10-11,2025-03-31,2025-08-28,2058016,1.00,Leased,188491,49095,60853,753112,729522,220596,54924,Small,$2–5M
+RFR-2024-SFO-01,SFO30 — Workplace Refresh,Complete,Refresh,Office,NA,San Francisco,20360,27430,25160,2024-01-04,2024-06-17,2024-11-14,2258958,1.00,Leased,176907,40647,74291,839549,763954,292852,63792,Small,$2–5M
+RFR-2024-SJC-01,SJC16 — Interiors Refresh,Complete,Refresh,Office,NA,San Jose,16440,23510,20710,2023-10-05,2024-04-22,2024-11-18,2120708,1.00,Owned,222087,44012,63746,624352,851821,238086,56534,Small,$2–5M
+RFR-2024-SEA-02,SEA15 — Interiors Refresh,Complete,Refresh,Office,NA,Seattle,17420,24910,22260,2023-12-12,2024-06-17,2024-12-14,1911617,1.00,Leased,182813,39192,61613,724989,604006,262892,47110,Small,Under $2M
+RFR-2024-SEA-01,SEA14 — Workplace Refresh,Complete,Refresh,Office,NA,Seattle,22030,31510,28220,2024-04-25,2024-10-28,2025-04-26,2398460,1.00,Owned,229395,52700,83678,859119,785141,328296,72015,Small,$2–5M
+RFR-2024-SIN-01,SIN12 — Refresh,Complete,Refresh,Office,APAC,Singapore,15860,21370,19510,2024-05-05,2024-10-21,2025-03-20,1984886,0.74,Leased,183132,35596,130015,685908,735215,212065,0,Small,Under $2M
+RFR-2024-SVL-01,SVL42 — Interiors Refresh,Complete,Refresh,Office,NA,Sunnyvale,19240,27510,24470,2023-07-21,2024-01-29,2024-07-27,2459148,1.00,Owned,235488,41899,64120,851494,917749,300117,66191,Small,$2–5M
+RFR-2024-SVL-02,SVL43 — Refresh,Complete,Refresh,Office,NA,Sunnyvale,22580,32290,28650,2024-05-15,2024-11-25,2025-05-24,2908329,1.00,Leased,275730,45199,159862,1055845,1041359,353832,0,Small,$2–5M
+RFR-2024-SAO-01,SAO42 — Interiors Refresh,Complete,Refresh,Office,LATAM,São Paulo,16750,23940,20950,2024-02-25,2024-07-29,2024-11-26,6284880,0.20,Leased,635790,100895,199275,2182315,2228315,702060,191795,Small,Under $2M
+RFR-2024-TYO-01,TYO42 — Refresh,Complete,Refresh,Office,APAC,Tokyo,20100,28730,25140,2024-04-12,2024-11-04,2025-03-04,398176667,0.0066,Owned,46657879,7103030,24719848,127323636,145531212,43999697,0,Small,$2–5M
+RFR-2024-TOR-01,TOR13 — Interiors Refresh,Complete,Refresh,Office,NA,Toronto,16030,22920,20390,2024-03-15,2024-09-23,2025-03-22,2165414,0.73,Leased,207360,36895,56460,749786,808129,264268,58285,Small,Under $2M`;
 
 // ============================================================================
 // CSV PARSING + NORMALIZATION
@@ -8744,17 +8762,40 @@ function normalizeWithValidation(rows) {
     if (!gia) { errors.push(`Row ${rowNum}: invalid GIA`); return; }
     // Currency normalization to USD. Convention: Currency Rate = "multiply native to get USD".
     // If your data uses the inverse convention (USD * rate = native), flip to `1 / rate`.
-    const rate = parseFloat(r['Currency Rate']) || 1.0;
+    // Currency Rate: blank → 1.0 (no conversion). A present 0/negative/non-numeric rate would
+    // zero or invert every cost — reject the row loudly rather than silently produce $0 comps.
+    const rawRate = parseFloat(r['Currency Rate']);
+    const rate = isNaN(rawRate) ? 1.0 : rawRate;
+    if (!(rate > 0) || !isFinite(rate)) { errors.push(`Row ${rowNum}: Currency Rate must be positive (got "${r['Currency Rate']}")`); return; }
     const toUSD = (v) => Math.round(parseCost(v) * rate);
     const eac = toUSD(r['Estimate at Completion (EAC)']);
     if (!eac) { errors.push(`Row ${rowNum}: invalid EAC`); return; }
+    const costs = {
+      GNL: toUSD(r['General (GNL)']),
+      STE: toUSD(r['Site (STE)']),
+      BSB: toUSD(r['Base/Building Core & Shell BSB']),
+      MEP: toUSD(r['MEP']),
+      Interiors: toUSD(r['Interiors']),
+      FFE: toUSD(r['FF&E']),
+      Legacy: toUSD(r['Legacy']),
+    };
+    // All buckets zero → almost always a renamed/missing cost column (the header didn't match,
+    // so every lookup returned blank). Skip + flag rather than feed a $0-cost comp to the engine.
+    if (Object.values(costs).reduce((a, b) => a + b, 0) <= 0) {
+      errors.push(`Row ${rowNum}: all cost buckets are zero/missing — check the cost column headers`);
+      return;
+    }
     valid.push({
       id: r['Project Number'],
       name: r['Project Name'] || r['Project Number'],
       status: r['Project Status'] || 'Complete',
-      type: r['Project Type'],
-      region: r['Reporting Region'] || '',
-      city: r['City'] || '',
+      // Normalize label whitespace so real-data drift ("Lab /  R&D", trailing spaces) matches
+      // the canonical typology/region keys instead of silently dropping comps or falling back to
+      // a default soft-cost/contingency %.
+      type: (r['Project Type'] || '').trim().replace(/\s+/g, ' '),
+      programType: (r['Program Type'] || '').trim().replace(/\s+/g, ' '),
+      region: (r['Reporting Region'] || '').trim().replace(/\s+/g, ' '),
+      city: (r['City'] || '').trim(),
       NOA: parseIntSafe(r['NOA'], Math.round(gia * 0.78)),
       GEA: parseIntSafe(r['GEA'], Math.round(gia * 1.13)),
       GIA: gia,
@@ -8764,15 +8805,7 @@ function normalizeWithValidation(rows) {
       EAC: eac,
       currencyRate: rate,
       ownership: r['Ownership'] || 'Leased',
-      costs: {
-        GNL: toUSD(r['General (GNL)']),
-        STE: toUSD(r['Site (STE)']),
-        BSB: toUSD(r['Base/Building Core & Shell BSB']),
-        MEP: toUSD(r['MEP']),
-        Interiors: toUSD(r['Interiors']),
-        FFE: toUSD(r['FF&E']),
-        Legacy: toUSD(r['Legacy']),
-      },
+      costs: costs,
       eacBucket: r['EAC Buckets'] || '',
       range: r['Range'] || '',
     });
@@ -8800,10 +8833,12 @@ const BICON = { GNL: 'engineering', STE: 'foundation', BSB: 'apartment', MEP: 'b
 // v3.2 desaturated palette — Material You tertiary tones. Distinguishable, less data-viz-default.
 const BCOLOR = { GNL: '#5B8FCC', STE: '#4FA876', BSB: '#D8A437', MEP: '#C95B4F', Interiors: '#8B5DA8', FFE: '#4F9BAD', Legacy: '#C97A5E' };
 
-const SIM_WEIGHTS = { region: 0.36, size: 0.30, recency: 0.20, ownership: 0.14 };
+// v14: program/use (Office vs Lab vs Data Center) added as a heavy similarity factor — a lab
+// fit-out should prefer other lab fit-outs. Weights re-balanced to still sum to 1.00.
+const SIM_WEIGHTS = { program: 0.25, region: 0.27, size: 0.22, recency: 0.16, ownership: 0.10 };
 const STORAGE_KEY = 'should-cost-saved';
 const MAX_SAVED = 8;
-const APP_VERSION = 'v6.5'; // v6.5 §5.5: single source of truth — chip + footer both read this
+const APP_VERSION = 'v6.6'; // v6.6: two-dimension taxonomy (Project Type + Program Type); bumped to invalidate cached projects.csv
 document.addEventListener('DOMContentLoaded', () => { const vc = document.querySelector('.version-chip'); if (vc) vc.textContent = APP_VERSION; });
 
 // v8: theme toggle — icon reflects the action (shows what you'll switch TO).
@@ -8843,7 +8878,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // v8: "View full detail" toggle — reveals the waterfall, comps, scatter, controls.
 // Delegated because the hero re-renders on every calc.
 document.addEventListener('click', (e) => {
-  const btn = e.target.closest && e.target.closest('#detailToggleBtn');
+  const t = /** @type {Element} */ (e.target);
+  const btn = t.closest && t.closest('#detailToggleBtn');
   if (!btn) return;
   const on = document.body.classList.toggle('sc-detail');
   btn.setAttribute('aria-expanded', on ? 'true' : 'false');
@@ -8857,7 +8893,8 @@ document.addEventListener('click', (e) => {
 
 // Proof-strip "See all N projects" → open the detail fold (if closed) and scroll to the comp table.
 document.addEventListener('click', (e) => {
-  if (!(e.target.closest && e.target.closest('#scrSeeComps'))) return;
+  const t = /** @type {Element} */ (e.target);
+  if (!(t.closest && t.closest('#scrSeeComps'))) return;
   if (!document.body.classList.contains('sc-detail')) {
     document.body.classList.add('sc-detail');
     const tgl = document.getElementById('detailToggleBtn');
@@ -8917,11 +8954,19 @@ function similarityBreakdown(p, inp) {
   const months = Math.abs(monthsTo(p.constructionStart, inp.cs));
   const recencyScore = months < 18 ? 1.0 : months < 30 ? 0.85 : months < 42 ? 0.65 : months < 60 ? 0.4 : 0.2;
   const ownershipScore = p.ownership === inp.ownership ? 1.0 : 0.55;
+  // v14: program/use match — strong preference, not a hard filter. Same program scores full; a
+  // different program still counts (0.35) so thin same-program pools don't collapse. If either
+  // side has no program label, score neutral (0.7) so unlabeled data isn't penalized.
+  const programScore = (inp.programType && p.programType)
+    ? (p.programType === inp.programType ? 1.0 : 0.35) : 0.7;
   const total = regionScore * SIM_WEIGHTS.region + sizeScore * SIM_WEIGHTS.size
-    + recencyScore * SIM_WEIGHTS.recency + ownershipScore * SIM_WEIGHTS.ownership;
+    + recencyScore * SIM_WEIGHTS.recency + ownershipScore * SIM_WEIGHTS.ownership
+    + programScore * SIM_WEIGHTS.program;
   return {
     total,
     parts: {
+      program: { score: programScore, contribution: programScore * SIM_WEIGHTS.program, weight: SIM_WEIGHTS.program,
+        label: (inp.programType && p.programType) ? (p.programType === inp.programType ? `Same program (${inp.programType})` : `Different program (${p.programType})`) : 'Program n/a' },
       region: { score: regionScore, contribution: regionScore * SIM_WEIGHTS.region, weight: SIM_WEIGHTS.region,
         label: p.city === inp.city ? `Same city (${inp.city})` : p.region === inp.region ? `Same region` : 'Different region' },
       size: { score: sizeScore, contribution: sizeScore * SIM_WEIGHTS.size, weight: SIM_WEIGHTS.size,
@@ -9039,6 +9084,11 @@ function calc(inp) {
   if (monthsTo(inp.cs, inp.rpdc) <= 0) {
     return { error: 'Target RPDC must be after Construction Start. Check your dates.' };
   }
+  // Trust-math guard: a non-positive/garbage GIA would make $/GIA divide by zero and surface
+  // Infinity/NaN as a "cost". An explicit, honest error beats a silently wrong number.
+  if (!(inp.gia > 0) || !isFinite(inp.gia)) {
+    return { error: 'Project size (GIA) must be a positive number.' };
+  }
   const cands = PROJECTS
     .filter(p => p.type === inp.type && isComplete(p.status))
     .map(p => {
@@ -9144,13 +9194,21 @@ function calc(inp) {
   const sizeSc = Math.min(comps.length / 8, 1) * 20;
   const major = ['MEP', 'Interiors', 'FFE', 'BSB'];
   const avgCV = major.reduce((a, b) => a + bStats[b].cv, 0) / major.length;
-  const varSc = Math.max(0, 1 - avgCV / 0.32) * 20;
+  // Bucket consistency is UNMEASURABLE with <2 comps — cv() returns 0 for a single point, which
+  // would otherwise read as a false "perfect" 20/20 dispersion score on a 1-comp pool. Score it
+  // 0 (can't assess) so the factor tells the truth on a thin corpus instead of inflating.
+  const varSc = comps.length < 2 ? 0 : Math.max(0, 1 - avgCV / 0.32) * 20;
   const avgSim = comps.reduce((a, p) => a + p.sim, 0) / comps.length;
   const simSc = avgSim * 20;
   const avgMonths = comps.reduce((a, p) => a + Math.abs(monthsTo(p.constructionStart, inp.cs)), 0) / comps.length;
   const recSc = Math.max(0, 1 - avgMonths / 60) * 20;
 
   const yourRate = total / inp.gia;
+  // Trust-math backstop: if anything upstream produced a non-finite total/rate (corrupt comp
+  // costs, etc.), refuse rather than render Infinity/NaN as a dollar figure.
+  if (!isFinite(total) || !isFinite(yourRate)) {
+    return { error: 'Estimate could not be computed from the available data. Check the corpus values for this project type.' };
+  }
   const compAdjRatesAll = comps.map(p => p.adjustedRate);
   // Kept for the "comps within ±30%" UI/insights — no longer feeds the confidence score.
   const inRangeCount = compAdjRatesAll.filter(cr => Math.abs(cr - yourRate) / yourRate <= 0.30).length;
@@ -9228,11 +9286,11 @@ function calc(inp) {
   const weakestFactor = confFactors.reduce((a, b) => (a.score / a.max < b.score / b.max ? a : b));
 
   // Soft costs — A&E, permits, CM, owner's reps (fee-based; not confidence-driven).
-  const softCostPct = TYPOLOGY_SOFTCOST_PCT[inp.type] || 0.12;
+  const softCostPct = TYPOLOGY_SOFTCOST_PCT[inp.programType] || TYPOLOGY_SOFTCOST_PCT[inp.type] || 0.12;
   const softCosts = total * softCostPct;
   // v8 #6: Contingency scales with confidence (AACE logic — a lower-confidence / higher
   // estimate-class job carries MORE contingency). conf 100 ≈ base; conf 50 ≈ base × 1.4.
-  const contingencyBase = TYPOLOGY_CONTINGENCY_PCT[inp.type] || 0.15;
+  const contingencyBase = TYPOLOGY_CONTINGENCY_PCT[inp.programType] || TYPOLOGY_CONTINGENCY_PCT[inp.type] || 0.15;
   const contingencyPct = contingencyBase * (1 + (1 - conf / 100) * 0.8);
   const contingency = total * contingencyPct;
   const tpc = total + softCosts + contingency;
@@ -9257,36 +9315,28 @@ function calc(inp) {
 }
 
 // Typology-default duration (months) — used for schedule-pressure detection
+// v14 two-dimension taxonomy: schedule is driven by the WORK SCOPE (Project Type); the cost
+// profile (soft cost / contingency) is driven by the PROGRAM / use (Office vs Lab vs Data
+// Center). Old conflated keys kept as aliases so any legacy/embedded data still resolves.
 const TYPOLOGY_DURATION = {
-  'Office Fit-Out': 9,
-  'Office Refresh': 6,
-  'Lab / R&D': 14,
-  'MEP Upgrade': 7,
-  'Cafe / Amenity': 7,
-  'Capital Improvement': 9,
-  'Data Center': 22,
-  'Ground-Up Construction': 22,
+  // Project Type (work scope)
+  'Fit-Out': 9, 'Refresh': 6, 'MEP Upgrade': 7, 'Capital Improvement': 9, 'Ground-Up': 22,
+  // legacy aliases
+  'Office Fit-Out': 9, 'Office Refresh': 6, 'Lab / R&D': 14, 'Cafe / Amenity': 7,
+  'Data Center': 22, 'Ground-Up Construction': 22,
 };
-// Soft cost % of construction — A&E fees, permits, CM, owner's reps, inspections
+// Soft cost % of construction — A&E fees, permits, CM, owner's reps, inspections. Keyed by PROGRAM.
 const TYPOLOGY_SOFTCOST_PCT = {
-  'Office Fit-Out': 0.10,
-  'Office Refresh': 0.08,
-  'Lab / R&D': 0.14,
-  'MEP Upgrade': 0.08,
-  'Cafe / Amenity': 0.10,
-  'Capital Improvement': 0.12,
-  'Data Center': 0.16,
+  'Office': 0.10, 'Lab / R&D': 0.14, 'Data Center': 0.16, 'Cafe / Amenity': 0.10,
+  // legacy aliases (pre-split Project Type values)
+  'Office Fit-Out': 0.10, 'Office Refresh': 0.08, 'MEP Upgrade': 0.08, 'Capital Improvement': 0.12,
   'Ground-Up Construction': 0.15,
 };
-// Contingency % of construction — design contingency + construction contingency
+// Contingency % of construction — design + construction contingency. Keyed by PROGRAM.
 const TYPOLOGY_CONTINGENCY_PCT = {
-  'Office Fit-Out': 0.15,
-  'Office Refresh': 0.12,
-  'Lab / R&D': 0.18,
-  'MEP Upgrade': 0.12,
-  'Cafe / Amenity': 0.15,
-  'Capital Improvement': 0.15,
-  'Data Center': 0.20,
+  'Office': 0.15, 'Lab / R&D': 0.18, 'Data Center': 0.20, 'Cafe / Amenity': 0.15,
+  // legacy aliases
+  'Office Fit-Out': 0.15, 'Office Refresh': 0.12, 'MEP Upgrade': 0.12, 'Capital Improvement': 0.15,
   'Ground-Up Construction': 0.18,
 };
 
@@ -9356,7 +9406,7 @@ function renderEmptyHero(inp) {
         <div class="hero-empty-body">The model pulls the 8 closest historical comps from a corpus of 138 completed Google REWS projects, weighted by region, size, and recency. It then ages each one forward to your target RPDC with region-specific labor + materials escalation, and scores confidence across five factors before publishing a defensible cost benchmark.</div>
         <ul class="hero-empty-checklist">
           <li><span class="material-symbols-outlined">check_circle</span>5-factor confidence model</li>
-          <li><span class="material-symbols-outlined">check_circle</span>AACE class auto-classification</li>
+          <li><span class="material-symbols-outlined">check_circle</span>Estimate-class classification</li>
           <li><span class="material-symbols-outlined">check_circle</span>Region-aware blended escalation</li>
           <li><span class="material-symbols-outlined">check_circle</span>PE-grade cost brief</li>
         </ul>
@@ -9386,24 +9436,17 @@ function runModel() {
   const runBtn = document.getElementById('runBtn');
   if (runBtn) runBtn.classList.add('is-running');
   hideRerunPill();
-  const inp = readInputs();
-  const r = calc(inp);
-  if (r.error) { _modelRunning = false; if (runBtn) runBtn.classList.remove('is-running'); return; }
+  // v13 resilience: the whole run is wrapped. On ANY throw we clear the "thinking" overlay
+  // (so it can never stick covering the page) and the finally always frees _modelRunning so
+  // the user can run again. A blocking soft-lock here was the worst-case failure.
+  try {
+    const inp = readInputs();
+    const r = calc(inp);
+    if (r.error) { if (runBtn) runBtn.classList.remove('is-running'); return; }
 
-  // v4.9: Re-run path. If the theater has already played once this session, skip it —
-  // go form → report inline with a fast number tween. Theater earns its place on the
-  // first reveal, but during iterate-and-tweak the PE wants the answer, not a show.
-  // v8: also take this fast path when the OS asks for reduced motion — never force the
-  // 5.5s cinematic on someone who's opted out of motion.
-  // v9: ALWAYS take the fast path — go straight to the readout with the number count-up
-  // reveal. Crisp, reliable, and never dependent on a CDN globe animation completing.
-  {
-    // v10: the answer is always rendered correctly first (no count-up — the number is
-    // already right in the markup). On the FIRST reveal of the session we play a
-    // self-contained "thinking" build-up over the hero (CSS globe + staged REAL
-    // computation steps) so the model reads as understanding the inputs and analyzing
-    // before the number lands. Re-runs skip it (the PE wants the answer while iterating),
-    // and reduced-motion always goes straight to the number.
+    // v9/v10: always go straight to the readout (number already correct in markup). On the
+    // FIRST reveal of the session, play a self-contained "thinking" build-up over the hero;
+    // re-runs and reduced-motion skip it.
     const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let skippedBefore = false;
     try { skippedBefore = sessionStorage.getItem('sc-buildup-skip') === '1'; } catch (e) {}
@@ -9417,9 +9460,18 @@ function runModel() {
       runBtn.classList.remove('is-running');
       runBtn.classList.add('is-rerun');
     }
-    if (playBuildup) runThinkingSequence(r, inp);
-    _modelRunning = false;
-    return;
+    if (playBuildup) {
+      runThinkingSequence(r, inp);
+      // Anti-soft-lock backstop: the sequence clears is-thinking itself (~5.5s). If it ever
+      // fails to, force-clear so the dark overlay can never stay stuck over the page.
+      setTimeout(() => { if (document.body.classList.contains('is-thinking')) abortThinking(); }, 8000);
+    }
+  } catch (e) {
+    console.error('[runModel]', e);
+    document.body.classList.remove('is-thinking'); // never leave the overlay covering the page
+    if (runBtn) runBtn.classList.remove('is-running');
+  } finally {
+    _modelRunning = false; // always allow another run, even after a failure
   }
 }
 
@@ -9498,12 +9550,16 @@ let _globeLambda = 0;       // current camera longitude (kept in sync for legacy
 let _globePhi = 0;          // current camera latitude
 let _globeAnimFrame = null;
 
-// Decode land + build a graticule generator using d3.
-const LAND_GEOJSON = topojson.feature(WORLD_TOPO, WORLD_TOPO.objects.land);
-const GRATICULE = d3.geoGraticule10();
+// Decode land + build a graticule generator using d3. Guarded: if the d3/topojson CDN is
+// blocked (e.g. a locked-down internal network), these would otherwise throw at module load
+// and blank the ENTIRE app. Instead the globe degrades to nothing and the app runs.
+const LAND_GEOJSON = (typeof topojson !== 'undefined' && typeof WORLD_TOPO !== 'undefined')
+  ? topojson.feature(WORLD_TOPO, WORLD_TOPO.objects.land) : null;
+const GRATICULE = (typeof d3 !== 'undefined') ? d3.geoGraticule10() : null;
 
 function registerGlobe(wrap, id) {
   if (!wrap) return;
+  if (typeof d3 === 'undefined' || !GRATICULE) return; // globe degrades if d3 CDN unavailable
   const svg = wrap.querySelector('svg.thinking-globe');
   if (!svg) return;
   const radius = 48;
@@ -9579,34 +9635,6 @@ function animateGlobeTo(targetLng, duration, onComplete, targetLat) {
     else { _globeAnimFrame = null; if (onComplete) onComplete(); }
   }
   _globeAnimFrame = requestAnimationFrame(tick);
-}
-
-// v4.6: Beat 2 of the camera choreography — zoom IN on the region after rotation lands.
-// Interpolates projection.scale() so the visible disc effectively gets closer to the city.
-let _globeZoomAnimFrame = null;
-function animateGlobeZoom(targetScale, duration, onComplete) {
-  duration = duration || 700;
-  if (_globeZoomAnimFrame) cancelAnimationFrame(_globeZoomAnimFrame);
-  const ids = Object.keys(_globes);
-  if (!ids.length) { if (onComplete) onComplete(); return; }
-  const startScale = _globes[ids[0]].projection.scale();
-  const t0 = performance.now();
-  const ease = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
-  function tick(now) {
-    const t = Math.min(1, (now - t0) / duration);
-    const s = startScale + (targetScale - startScale) * ease(t);
-    ids.forEach(id => _globes[id].projection.scale(s));
-    renderGlobeContinents();
-    if (t < 1) _globeZoomAnimFrame = requestAnimationFrame(tick);
-    else { _globeZoomAnimFrame = null; if (onComplete) onComplete(); }
-  }
-  _globeZoomAnimFrame = requestAnimationFrame(tick);
-}
-
-// Reset the projection scale back to default (after a Run completes).
-function resetGlobeZoom() {
-  Object.values(_globes).forEach(g => g.projection.scale(48));
-  renderGlobeContinents();
 }
 
 // Idle slow rotation in empty state
@@ -9739,7 +9767,7 @@ function buildThinkingItems(r, inp) {
   return [
     { type: 'check', text: `Region <b>${inp.region}</b> · routing to corpus` },
     { type: 'check', text: `City <b>${inp.city}</b> · matched to ${inp.region} pool` },
-    { type: 'check', text: `Type <b>${inp.type}</b>${r && r.aaceClass ? ' · AACE Class ' + r.aaceClass : ''}` },
+    { type: 'check', text: `Type <b>${inp.type}</b>${r && r.aaceClass ? ' · Estimate class ' + r.aaceClass : ''}` },
     { type: 'check', text: `Scope <b>${(inp.gia/1000).toFixed(0)}K GIA</b> · ${inp.ownership}, ${inp.occupancy}` },
     { type: 'spin',  text: `Pulling <b>${compCount} closest comps</b> from the ${inp.region} ${inp.type.toLowerCase()} pool…` },
     { type: 'spin',  text: `Escalating comps <b>+${escPct}%</b> to ${rpdcYM}…` },
@@ -9948,71 +9976,6 @@ function revealThinking(overlay, r, inp) {
   }, 360);
 }
 
-// v3.6: hero confidence block — moves the deliverable answer out of the basement.
-function buildHeroConfidence(r) {
-  const band = r.conf >= 80
-    ? { l: r.conf >= 95 ? 'Very high' : 'High', color: '#1E8E3E', cls: 'hc-high' }
-    : r.conf >= 60
-      ? { l: 'Medium', color: '#5F6368', cls: 'hc-med' }
-      : { l: 'Low', color: '#D93025', cls: 'hc-low' };
-  const R = 28, C = 2 * Math.PI * R;
-  const offset = C * (1 - r.conf / 100);
-  const factors = [
-    ['Sample',     r.sizeSc],
-    ['Buckets',    r.varSc],
-    ['Similarity', r.simSc],
-    ['Recency',    r.recSc],
-    ['Stability',  r.stabSc],
-  ];
-  const barColor = (v) => v >= 15 ? '#34A853' : v >= 10 ? '#5F6368' : '#D93025';
-  return `
-    <div class="hero-conf-head">
-      <div class="hero-conf-ring ${band.cls}">
-        <svg viewBox="0 0 72 72">
-          <circle class="hcr-bg" cx="36" cy="36" r="${R}"></circle>
-          <circle class="hcr-fill" cx="36" cy="36" r="${R}"
-            stroke="${band.color}"
-            stroke-dasharray="${C.toFixed(2)}"
-            stroke-dashoffset="${C.toFixed(2)}"
-            data-final-offset="${offset.toFixed(2)}"></circle>
-        </svg>
-        <div class="hero-conf-ring-text">
-          <span class="hcr-score">${r.conf}</span>
-        </div>
-      </div>
-      <div class="hero-conf-meta">
-        <div class="hero-conf-label">Confidence</div>
-        <div class="hero-conf-band">${band.l}</div>
-      </div>
-    </div>
-    <div class="hero-conf-bars">
-      ${factors.map(f => `
-        <div class="hero-conf-bar" title="${f[0]}: ${Math.round(f[1])}/20">
-          <div class="hcb-label">${f[0]}</div>
-          <div class="hcb-track"><div class="hcb-fill" style="background:${barColor(f[1])}; width:0%;" data-final-width="${(f[1] / 20 * 100).toFixed(1)}%"></div></div>
-          <div class="hcb-val">${Math.round(f[1])}</div>
-        </div>`).join('')}
-    </div>`;
-}
-
-function animateHeroConfRing() {
-  const ring = document.querySelector('.hero-conf-ring .hcr-fill');
-  if (ring) {
-    const finalOffset = ring.getAttribute('data-final-offset');
-    requestAnimationFrame(() => {
-      ring.style.transition = 'stroke-dashoffset 0.85s cubic-bezier(0.2,0,0,1) 0.15s';
-      ring.setAttribute('stroke-dashoffset', finalOffset);
-    });
-  }
-  document.querySelectorAll('.hero-conf-bar .hcb-fill').forEach((el, i) => {
-    const w = el.getAttribute('data-final-width');
-    requestAnimationFrame(() => {
-      el.style.transition = `width 0.5s cubic-bezier(0.2,0,0,1) ${0.32 + i * 0.06}s`;
-      el.style.width = w;
-    });
-  });
-}
-
 function animateHeroAmount(targetTotal, baselineTotal) {
   if (_heroAnimFrame) cancelAnimationFrame(_heroAnimFrame);
   // v9: ALWAYS snap to the correct final number — a throttled rAF count-up could otherwise
@@ -10087,7 +10050,10 @@ function updatePinnedHero(r, inp) {
   amtEl.textContent = `${parts.sym}${parts.num}${parts.unit}`;
   rangeEl.innerHTML = `<span class="phm-label">−${r.p10Pct}/+${r.p90Pct}</span>%`;
   const band = r.conf >= 80 ? 'high' : r.conf >= 60 ? 'med' : 'low';
-  confEl.innerHTML = `<span class="phm-conf-pill phm-conf-${band}">${r.conf}/100</span>`;
+  // §5.4: carry the same qualifier the Findings pill shows, so the sticky bar and the card
+  // never read differently for the same score (81/100 High in both, not "81/100" vs "81/100 High").
+  const bandLabel = band === 'high' ? 'High' : band === 'med' ? 'Moderate' : 'Low';
+  confEl.innerHTML = `<span class="phm-conf-pill phm-conf-${band}">${r.conf}/100 ${bandLabel}</span>`;
 }
 
 function initPinnedHero() {
@@ -10288,7 +10254,7 @@ function buildFindingColumns(r, inp, insights) {
     kind: 'DISTRIBUTION',
     headline: `$${Math.round(r.yourRate)}/GIA`,
     vis: histSVG,
-    prose: `Your $/GIA sits in the <b>${pctlBand}</b> of the pool. ${compAdjRates.filter(c => Math.abs(c.rate - r.yourRate) / r.yourRate <= 0.30).length} of ${compAdjRates.length} comps within ±30%.`,
+    prose: `Your $/GIA sits in the <b>${pctlBand}</b> of the pool. ${r.inRangeCount} of ${r.comps.length} comps within ±30%.`,
     investigate: { type: 'tighten' },
   };
 
@@ -10380,9 +10346,9 @@ function buildDistributionHistogram(sortedRates, yourRate) {
   });
   // Axis line
   s += `<line x1="${padX}" y1="${baseY}" x2="${W - padX}" y2="${baseY}" stroke="#E5E7EB" stroke-width="1"/>`;
-  // Min/max labels
-  s += `<text x="${padX}" y="${H - 1}" font-size="8" fill="#9CA3AF" font-family="ui-monospace, monospace">$${Math.round(minV)}</text>`;
-  s += `<text x="${W - padX}" y="${H - 1}" font-size="8" fill="#9CA3AF" font-family="ui-monospace, monospace" text-anchor="end">$${Math.round(maxV)}</text>`;
+  // Min/max axis labels — unit-anchored ($/sf) so the spread reads as rates, not bare numbers.
+  s += `<text x="${padX}" y="${H - 1}" font-size="8" fill="#9CA3AF" font-family="ui-monospace, monospace">$${Math.round(minV)}/sf</text>`;
+  s += `<text x="${W - padX}" y="${H - 1}" font-size="8" fill="#9CA3AF" font-family="ui-monospace, monospace" text-anchor="end">$${Math.round(maxV)}/sf</text>`;
   return `<svg class="pe-vis-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${s}</svg>`;
 }
 
@@ -10420,7 +10386,7 @@ function renderPEInsight(r, inp) {
             <div class="pe-finding-headline">${col.headline}</div>
             <div class="pe-finding-vis">${col.vis}</div>
             <div class="pe-finding-prose">${col.prose}</div>
-            ${col.investigate && chips.some(c => c.type === col.investigate.type) ? `<a class="pe-finding-investigate" data-chip-type="${col.investigate.type}" href="#">Investigate <span class="material-symbols-outlined">arrow_forward</span></a>` : ''}
+            ${col.investigate && chips.some(c => c.type === col.investigate.type) ? `<button type="button" class="pe-finding-investigate" data-chip-type="${col.investigate.type}">Investigate <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></button>` : ''}
           </div>
         `).join('')}
       </div>
@@ -10752,6 +10718,13 @@ function saveCurrent(note = '') {
     bucketAdj: { ...STATE.bucketAdj },
     excluded: [...STATE.excluded],
     total: r.total,
+    // v-accuracy: persist the all-in TPC + uncertainty band + confidence so outcome tracking
+    // compares like-for-like (actual EAC is all-in) and interval coverage is measurable later.
+    tpc: r.tpc,
+    p10: r.p10,
+    p90: r.p90,
+    conf: r.conf,
+    aaceClass: r.aaceClass,
   };
   const list = loadSaved();
   list.unshift(saved);
@@ -10802,7 +10775,9 @@ function buildNegotiationBrief(r, inp) {
   // Overall comp range for closing language — normalized ($/GIA city + escalation adjusted,
   // via adjustedRate), matching the per-bucket basis. Positioning uses your pre-premium
   // benchmarked construction rate (baseRate) so it's compared like-for-like against the band;
-  // the real all-in EAC rate (yourGIA, with premiums) is still shown for context.
+  // the construction rate WITH occupancy/schedule premiums (yourGIA = r.total/gia) is shown
+  // for context. NB: r.total is CONSTRUCTION, not all-in — the all-in budget (r.tpc) adds soft
+  // costs + contingency on top, so this parenthetical must never call r.total "all-in".
   const compRates = r.comps.map(c => c.adjustedRate);
   const compMin = Math.min(...compRates);
   const compMax = Math.max(...compRates);
@@ -10860,7 +10835,7 @@ function openNegotiationBrief() {
       </div>`
     : '';
 
-  const negotiationLanguage = `Comparable Google projects at this scope and locale — normalized to ${inp.city} and your target date — cluster at $${Math.round(brief.compMin)}–${Math.round(brief.compMax)}/GIA. Your benchmarked construction rate of $${brief.yourBaseGIA}/GIA sits ${brief.yourBaseGIA <= brief.compMax ? 'within' : 'above'} that range (all-in EAC ${fmt$(brief.r.total)}, $${brief.yourGIA}/GIA with project premiums). ${brief.pushbackOps.length ? `Specific scope items above the comp median — ${brief.pushbackOps.map(o => o.name).join(', ')} — warrant detailed walkthrough.` : 'Bid is well-anchored against historical comps.'}`;
+  const negotiationLanguage = `Comparable Google projects at this scope and locale — normalized to ${inp.city} and your target date — cluster at $${Math.round(brief.compMin)}–${Math.round(brief.compMax)}/GIA. Your benchmarked construction rate of $${brief.yourBaseGIA}/GIA sits ${brief.yourBaseGIA <= brief.compMax ? 'within' : 'above'} that range (${fmt$(brief.r.total)} construction at $${brief.yourGIA}/GIA incl. occupancy & schedule premiums; all-in budget adds soft costs + contingency). ${brief.pushbackOps.length ? `Specific scope items above the comp median — ${brief.pushbackOps.map(o => o.name).join(', ')} — warrant detailed walkthrough.` : 'Bid is well-anchored against historical comps.'}`;
 
   // Basis disclosure: how the deltas were derived, stated honestly in one place.
   const basisHTML = `
@@ -10954,7 +10929,7 @@ function buildPlainBrief(brief) {
     lines.push('');
   }
   lines.push('BASIS & BID-DAY LANGUAGE:');
-  lines.push(`Comparable Google projects at this scope and locale — normalized to ${brief.inp.city} and your target date — cluster at $${Math.round(brief.compMin)}–${Math.round(brief.compMax)}/GIA. Your benchmarked construction rate of $${brief.yourBaseGIA}/GIA sits ${brief.yourBaseGIA <= brief.compMax ? 'within' : 'above'} that range (all-in EAC ${fmt$(brief.r.total)}, $${brief.yourGIA}/GIA with project premiums).${brief.pushbackOps.length ? ` Specific scope items above the comp median — ${brief.pushbackOps.map(o => o.name).join(', ')} — warrant detailed walkthrough.` : ''}`);
+  lines.push(`Comparable Google projects at this scope and locale — normalized to ${brief.inp.city} and your target date — cluster at $${Math.round(brief.compMin)}–${Math.round(brief.compMax)}/GIA. Your benchmarked construction rate of $${brief.yourBaseGIA}/GIA sits ${brief.yourBaseGIA <= brief.compMax ? 'within' : 'above'} that range (${fmt$(brief.r.total)} construction at $${brief.yourGIA}/GIA incl. occupancy & schedule premiums; all-in budget adds soft costs + contingency).${brief.pushbackOps.length ? ` Specific scope items above the comp median — ${brief.pushbackOps.map(o => o.name).join(', ')} — warrant detailed walkthrough.` : ''}`);
   lines.push(`All deltas are measured against the comp-pool median across ${N} comparable Google project${N === 1 ? '' : 's'}; construction rates compared pre-premium (occupancy/schedule premiums excluded from the gap by design).${brief.anchor ? ` Closest single anchor: ${brief.anchor.id} (${Math.round(brief.anchor.sim * 100)}% match).` : ''}`);
   lines.push('');
   lines.push('This is a comparable-based benchmark against historical Google projects — not professional cost advice or a bottom-up estimate.');
@@ -10967,7 +10942,8 @@ function restoreSaved(id) {
   const i = saved.inputs || {};
   const nameEl = document.getElementById('i-name');
   if (nameEl) nameEl.value = i.name || '';
-  document.getElementById('i-type').value = i.type || 'Office Fit-Out';
+  document.getElementById('i-type').value = i.type || 'Fit-Out';
+  const _prog = document.getElementById('i-program'); if (_prog) _prog.value = i.programType || 'Office';
   document.getElementById('i-region').value = i.region || 'NA';
   populateCities();
   document.getElementById('i-city').value = i.city || 'Mountain View';
@@ -11011,10 +10987,18 @@ function deleteSaved(id) {
 // ============================================================================
 // ACTUALS TRACKING — record outcomes against saved estimates to measure accuracy
 // ============================================================================
+// The estimate basis for every outcome comparison is the construction `total`, because the
+// corpus/REWS "EAC" (Estimate at Completion) == the sum of the 7 cost buckets == the engine's
+// `total` (app invariant R1; basis-of-estimate.md), NOT the all-in `tpc` (= total + soft +
+// contingency, which has no EAC ground truth). The LOOCV back-test (validate-engine.mjs)
+// confirmed comparing an EAC actual against tpc injects a spurious ~+33% bias. Kept as a named
+// helper so this basis decision stays documented at the comparison point.
+function savedEstimate(s) { return s.total; }
+
 function openActualModal(savedItem) {
   document.querySelectorAll('.save-modal, .brief-modal, .actual-modal').forEach(m => m.remove());
   const existing = savedItem.actual;
-  const estTotal = savedItem.total;
+  const estTotal = savedEstimate(savedItem);
 
   const modal = document.createElement('div');
   modal.className = 'save-modal actual-modal';
@@ -11090,7 +11074,8 @@ function saveActual(id, eac, notes) {
   item.actual = { eac, date: new Date().toISOString(), notes: (notes || '').trim() };
   writeSaved(list);
   renderRecents();
-  const pct = ((eac - item.total) / item.total) * 100;
+  const est = savedEstimate(item);
+  const pct = ((eac - est) / est) * 100;
   showToast(`Outcome recorded — estimate ran ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`, 'check_circle');
 }
 
@@ -11107,7 +11092,7 @@ function clearActual(id) {
 function computeAccuracy() {
   const list = loadSaved().filter(s => s.actual && s.actual.eac > 0);
   if (!list.length) return null;
-  const deltas = list.map(s => ((s.actual.eac - s.total) / s.total) * 100);
+  const deltas = list.map(s => { const est = savedEstimate(s); return ((s.actual.eac - est) / est) * 100; });
   const avgPct = deltas.reduce((a, b) => a + b, 0) / deltas.length;
   const avgAbsPct = deltas.map(Math.abs).reduce((a, b) => a + b, 0) / deltas.length;
   return { count: list.length, avgPct, avgAbsPct };
@@ -11290,6 +11275,7 @@ function readInputs() {
   return {
     name: (document.getElementById('i-name')?.value || '').trim(),
     type: document.getElementById('i-type').value,
+    programType: document.getElementById('i-program')?.value || '',
     region: document.getElementById('i-region').value,
     city: document.getElementById('i-city').value,
     gia: (function() {
@@ -11310,12 +11296,52 @@ function readInputs() {
     minSim: parseFloat(document.getElementById('i-minsim').value) || 0.25,
   };
 }
+// v13: corpus-derived dropdowns. Type / region / city options come from the LOADED corpus so
+// they always match the data — when the real Sheet replaces the demo, the dropdowns become the
+// real types/regions/cities with zero manual sync. Falls back to the hardcoded constants when no
+// corpus is loaded (file:// with no data / load failure) so the form is never empty.
+let CORPUS_OPTS = null;
+function deriveCorpusOptions() {
+  if (!Array.isArray(PROJECTS) || !PROJECTS.length) { CORPUS_OPTS = null; return; }
+  const canon = ['NA', 'EMEA', 'APAC', 'LATAM'];
+  const types = [...new Set(PROJECTS.map(p => p.type).filter(Boolean))].sort();
+  const programs = [...new Set(PROJECTS.map(p => p.programType).filter(Boolean))].sort();
+  const present = [...new Set(PROJECTS.map(p => p.region).filter(Boolean))];
+  const regions = canon.filter(r => present.includes(r))
+    .concat(present.filter(r => !canon.includes(r)).sort());
+  const citiesByRegion = {};
+  regions.forEach(r => {
+    citiesByRegion[r] = [...new Set(PROJECTS.filter(p => p.region === r).map(p => p.city).filter(Boolean))].sort();
+  });
+  CORPUS_OPTS = { types, programs, regions, citiesByRegion };
+}
+function _fillSelect(id, values, preferred) {
+  const sel = document.getElementById(id);
+  if (!sel || !values || !values.length) return;
+  const cur = sel.value;
+  sel.innerHTML = values.map(v => `<option value="${String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">${String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;')}</option>`).join('');
+  sel.value = values.includes(cur) ? cur : (values.includes(preferred) ? preferred : values[0]);
+  sel.dispatchEvent(new Event('m3:rebuild'));
+}
+// Repopulate the type/region/city dropdowns from the corpus. Called once after loadData (the
+// hardcoded markup is the pre-data fallback). Preserves the current selection when it still exists.
+function applyCorpusOptions() {
+  deriveCorpusOptions();
+  if (!CORPUS_OPTS) return; // no corpus loaded — keep the hardcoded fallback options
+  _fillSelect('i-type', CORPUS_OPTS.types, 'Fit-Out');
+  if (CORPUS_OPTS.programs && CORPUS_OPTS.programs.length) _fillSelect('i-program', CORPUS_OPTS.programs, 'Office');
+  _fillSelect('i-region', CORPUS_OPTS.regions, 'NA');
+  populateCities();
+}
 function populateCities() {
   const reg = document.getElementById('i-region').value;
   const sel = document.getElementById('i-city');
+  if (!sel) return;
   const current = sel.value;
-  sel.innerHTML = CITIES[reg].map(c => `<option value="${c}">${c}</option>`).join('');
-  if (CITIES[reg].includes(current)) sel.value = current;
+  const list = (CORPUS_OPTS && CORPUS_OPTS.citiesByRegion[reg]) || CITIES[reg] || [];
+  sel.innerHTML = list.map(c => `<option value="${c}">${c}</option>`).join('');
+  if (list.includes(current)) sel.value = current;
+  else if (list.length) sel.value = list[0];
   sel.dispatchEvent(new Event('m3:rebuild'));
 }
 
@@ -11346,6 +11372,7 @@ function initM3Select(field) {
         }
         field.classList.remove('open');
         rebuild();
+        trigger.focus(); // focus would otherwise die with the rebuilt menu item
       });
       menu.appendChild(item);
     });
@@ -11369,7 +11396,64 @@ function initM3Select(field) {
   const syncExpanded = () => trigger.setAttribute('aria-expanded', field.classList.contains('open') ? 'true' : 'false');
   syncExpanded();
   try { new MutationObserver(syncExpanded).observe(field, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
+
+  // a11y: arrow-key navigation (WAI-ARIA listbox pattern — options are real
+  // buttons, so they take actual focus rather than aria-activedescendant)
+  field.addEventListener('keydown', (e) => {
+    const NAV = e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Home' || e.key === 'End';
+    if (!NAV && e.key !== 'Escape') return;
+    const open = field.classList.contains('open');
+    if (!open) {
+      if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && document.activeElement === trigger) {
+        e.preventDefault();
+        trigger.click();
+        const sel = menu.querySelector('[aria-selected="true"]') || menu.querySelector('.m3-menu-item');
+        if (sel) sel.focus();
+      }
+      return;
+    }
+    if (e.key === 'Escape') { e.preventDefault(); field.classList.remove('open'); trigger.focus(); return; }
+    const items = [...menu.querySelectorAll('.m3-menu-item')];
+    if (!items.length) return;
+    e.preventDefault();
+    const cur = items.indexOf(document.activeElement);
+    let next;
+    if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = items.length - 1;
+    else if (cur === -1) next = Math.max(items.findIndex(i => i.getAttribute('aria-selected') === 'true'), 0);
+    else next = e.key === 'ArrowDown' ? Math.min(cur + 1, items.length - 1) : Math.max(cur - 1, 0);
+    items[next].focus();
+  });
   rebuild();
+}
+
+// a11y: WAI-ARIA radiogroup pattern for the segmented controls — roving
+// tabindex + arrow keys move AND select. The existing click handlers own the
+// aria-checked flip; this only drives them from the keyboard.
+function initM3Radiogroups() {
+  document.querySelectorAll('[role="radiogroup"]').forEach(group => {
+    const radios = () => [...group.querySelectorAll('[role="radio"]')];
+    const syncTabs = () => {
+      const rs = radios();
+      const checked = rs.findIndex(r => r.getAttribute('aria-checked') === 'true');
+      rs.forEach((r, i) => r.setAttribute('tabindex', i === (checked === -1 ? 0 : checked) ? '0' : '-1'));
+    };
+    group.addEventListener('keydown', (e) => {
+      const rs = radios();
+      const cur = rs.indexOf(document.activeElement);
+      if (cur === -1) return;
+      let next = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (cur + 1) % rs.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (cur - 1 + rs.length) % rs.length;
+      if (next === null) return;
+      e.preventDefault();
+      rs[next].click();
+      rs[next].focus();
+      syncTabs();
+    });
+    group.addEventListener('click', () => setTimeout(syncTabs, 0));
+    syncTabs();
+  });
 }
 
 function initM3DatePicker(field) {
@@ -11456,6 +11540,7 @@ function initM3DatePicker(field) {
 function initM3Components() {
   document.querySelectorAll('[data-m3-select]').forEach(initM3Select);
   document.querySelectorAll('[data-m3-date]').forEach(initM3DatePicker);
+  initM3Radiogroups();
   // Number inputs need has-value tracking for floating label fallback (handled by CSS via :placeholder-shown)
   document.querySelectorAll('[data-m3-number] input').forEach(inp => {
     const field = inp.closest('.m3-field');
@@ -11859,7 +11944,7 @@ function initGIAField() {
       const v = Math.round(Math.exp(lv) / 100) * 100;
       setValue(v, 'tween');
       if (t < 1) _giaAnimFrame = requestAnimationFrame(tick);
-      else { _giaAnimFrame = null; render(); }
+      else { _giaAnimFrame = null; onInputChanged(); }
     }
     _giaAnimFrame = requestAnimationFrame(tick);
   }
@@ -11871,7 +11956,7 @@ function initGIAField() {
     const v = giaPosToValue(parseFloat(slider.value));
     setValue(v, 'slider');
   });
-  slider.addEventListener('change', () => render());
+  slider.addEventListener('change', () => onInputChanged());
 
   input.addEventListener('input', () => {
     const v = parseGIAValue(input.value);
@@ -12163,6 +12248,13 @@ function renderScatter(r, inp) {
   const yMin = Math.min(...rateVals) * 0.85;
   const yMax = Math.max(...rateVals) * 1.10;
 
+  // Degenerate-scale guard: a zero/non-finite extent (e.g. a single comp with GIA 0) would
+  // make the scale divide by zero and throw. Skip the chart cleanly rather than break render.
+  if (![xMin, xMax, yMin, yMax].every(isFinite) || xMax <= xMin || yMax <= yMin) {
+    svg.innerHTML = '';
+    return;
+  }
+
   const xScale = v => PAD.l + ((v - xMin) / (xMax - xMin)) * innerW;
   const yScale = v => PAD.t + (1 - (v - yMin) / (yMax - yMin)) * innerH;
 
@@ -12268,10 +12360,15 @@ function renderScatter(r, inp) {
   labels += `</g>`;
 
   // === COMP DOTS — gradient fill, drop shadow, sized by EAC, colored by similarity ===
+  // §6.4: only the maxN modeled comps drive the estimate. Render them full-strength; fade the
+  // other (real, in-market) comps so the picture matches the "N comps" narrative without hiding
+  // the broader market context (which would read as cherry-picking).
+  const modeledIds = new Set((r.comps || []).map(c => c.id));
   const dots = allComps.map(p => {
     const cx = xScale(p.GIA);
     const cy = yScale(p.rate);
     const radius = 5 + Math.sqrt(p.EAC / 1e6) * 1.8;
+    const isModeled = modeledIds.has(p.id);
     let fillRef, strokeColor, opacity;
     if (p.excluded) {
       fillRef = '#D8DCE3'; strokeColor = '#9AA0A6'; opacity = 0.42;
@@ -12281,7 +12378,7 @@ function renderScatter(r, inp) {
       else if (t >= 0.5) { fillRef = 'url(#sct-dot-hi)'; strokeColor = '#1A73E8'; }
       else if (t >= 0.25) { fillRef = 'url(#sct-dot-mid)'; strokeColor = '#4285F4'; }
       else { fillRef = 'url(#sct-dot-lo)'; strokeColor = '#7BAAF7'; }
-      opacity = 0.92;
+      opacity = isModeled ? 0.95 : 0.16;
     }
     // Outlier dashed ring (only for non-excluded outliers)
     const outlierRing = p.isOutlier
@@ -12322,8 +12419,8 @@ function renderScatter(r, inp) {
       <line x1="${PAD.l}" y1="${ty}" x2="${tx - 22}" y2="${ty}" stroke="#4285F4" stroke-width="1" stroke-dasharray="3,4" opacity="0.45"/>
       <line x1="${tx}" y1="${PAD.t + innerH}" x2="${tx}" y2="${ty + 22}" stroke="#4285F4" stroke-width="1" stroke-dasharray="3,4" opacity="0.45"/>
       <circle cx="${tx}" cy="${ty}" r="36" fill="url(#sct-target-glow)" class="sct-target-pulse"/>
-      <circle cx="${tx}" cy="${ty}" r="18" fill="none" stroke="rgba(66,133,244,0.4)" stroke-width="1"/>
-      <circle cx="${tx}" cy="${ty}" r="12" fill="white" stroke="#4285F4" stroke-width="2.5"/>
+      <circle cx="${tx}" cy="${ty}" r="20" fill="none" stroke="#FBBC04" stroke-width="2.5" opacity="0.95"/>
+      <circle cx="${tx}" cy="${ty}" r="12" fill="white" stroke="#FBBC04" stroke-width="2.5"/>
       <circle cx="${tx}" cy="${ty}" r="6" fill="url(#sct-target-core)"/>
     </g>
     <g class="sct-target-label">
@@ -12613,6 +12710,66 @@ function updateCompAvailability(inp) {
   el.innerHTML = `<span class="material-symbols-outlined ${level === 'high' || level === 'med' ? 'ai-sparkle' : ''}">${icon}</span>${label}`;
 }
 
+// Move 5: type-aware size pills. The fixed 10K/25K/100K/500K chips meant the same
+// four sizes for a Cafe and a Data Center; now Small/Typical/Large are the P25/median/P75
+// of the selected type's GIA distribution, read live from the corpus (mirrors
+// updateCompAvailability — refreshed every render). When a type has too few completed
+// comps to form a range, fall back to a spread around the typology template size.
+function giaQuantile(sorted, q) {
+  if (!sorted.length) return 0;
+  const pos = (sorted.length - 1) * q;
+  const lo = Math.floor(pos), hi = Math.ceil(pos);
+  return lo === hi ? sorted[lo] : sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
+}
+function niceGia(v) {
+  // round to a clean step so pills read as round numbers, clamped to supported scope
+  let r;
+  if (v >= 200000)     r = Math.round(v / 25000) * 25000;
+  else if (v >= 50000) r = Math.round(v / 5000) * 5000;
+  else if (v >= 10000) r = Math.round(v / 1000) * 1000;
+  else                 r = Math.round(v / 500) * 500;
+  return Math.max(GIA_MIN, Math.min(GIA_MAX, r));
+}
+function updateGiaPills(inp) {
+  const wrap = document.querySelector('.gia-presets');
+  if (!wrap) return;
+  const chips = wrap.querySelectorAll('.gia-chip');
+  const sizes = PROJECTS
+    .filter(p => p.type === inp.type && isComplete(p.status) && p.GIA > 0)
+    .map(p => p.GIA)
+    .sort((a, b) => a - b);
+  let small, typical, large, basis;
+  if (sizes.length >= 4) {
+    small = niceGia(giaQuantile(sizes, 0.25));
+    typical = niceGia(giaQuantile(sizes, 0.50));
+    large = niceGia(giaQuantile(sizes, 0.75));
+    basis = `from ${sizes.length} ${inp.type} comps`;
+  } else {
+    const base = (TYPOLOGY_TEMPLATES[inp.type] && TYPOLOGY_TEMPLATES[inp.type].gia) || 25000;
+    small = niceGia(base * 0.6);
+    typical = niceGia(base);
+    large = niceGia(base * 1.8);
+    basis = sizes.length ? `few comps — using ${inp.type} norm` : `using ${inp.type} norm`;
+  }
+  // guard tight/collapsed distributions so the three tiers stay distinct
+  if (typical <= small) typical = niceGia(small * 1.4);
+  if (large <= typical) large = niceGia(typical * 1.5);
+  const tiers = { small, typical, large };
+  const cur = parseInt(document.getElementById('i-gia')?.dataset.raw) || inp.gia;
+  chips.forEach(chip => {
+    const v = tiers[chip.dataset.tier];
+    if (v == null) return;
+    chip.dataset.value = v;
+    const valEl = chip.querySelector('.gia-chip-val');
+    if (valEl) valEl.textContent = formatGIAValue(v);
+    chip.classList.toggle('active', Math.round(cur) === v);
+  });
+  const sanity = document.getElementById('gia-sanity');
+  if (sanity) {
+    sanity.innerHTML = `≈ <b>${formatGIAValue(cur)}</b> sqft · typical ${inp.type} range <b>${formatGIAValue(small)}–${formatGIAValue(large)}</b> · ${basis}`;
+  }
+}
+
 // v9: draw the readout SVG infographics + wire the interactive range. Called after the
 // readout innerHTML is set. Everything reads from r (single source) — no contradictions.
 function scrDrawReadout(r, inp) {
@@ -12701,11 +12858,23 @@ function scrDrawReadout(r, inp) {
   if (fails.length) console.warn('[SCR reconcile FAIL]', fails.map(f => f[0]));
 }
 
+// v13 resilience: render() must never throw uncaught — that would blank/freeze the page (and
+// could leave the "thinking" overlay stuck). Thin wrapper guards the real work in _renderImpl;
+// on failure it clears the overlay and shows a non-blocking notice instead of a dead page.
 function render() {
+  try { return _renderImpl(); }
+  catch (e) {
+    console.error('[render]', e);
+    document.body.classList.remove('is-thinking');
+    try { if (typeof showToast === 'function') showToast('Could not render the result — check inputs or data.', 'warning'); } catch (_) {}
+  }
+}
+function _renderImpl() {
   const inp = readInputs();
   if (!inp.city) { populateCities(); inp.city = document.getElementById('i-city').value; }
   updateDurationChip(inp);
   updateCompAvailability(inp);
+  updateGiaPills(inp);
 
   // v4.0: Run-gated landing. v4.9: wizard now owns the empty state via data-view="form".
   // No need to render the embedded empty hero — layout-main is hidden in form view.
@@ -12877,7 +13046,8 @@ function render() {
       <h1 class="scr-eyebrow">Cost Benchmark</h1>
       <div class="scr-project">${inp.city} &middot; ${inp.type} &middot; ${inp.gia.toLocaleString()} GIA &middot; RPDC ${fmtMonthYear(inp.rpdc)}</div>
       <div class="scr-amount"><span class="scr-sym">${amtParts.sym}</span><span class="hero-amount-num">${amtParts.num}</span><span class="scr-unit">${amtParts.unit}</span></div>
-      <div class="scr-verdict${_isHigh?' is-high':''}"><span class="vdot"></span><b>${_confWord}</b>&nbsp;&middot;&nbsp;$${_rate}/GIA&nbsp;&middot;&nbsp;AACE Class ${r.aaceClass}${r.aaceClass!=='3'?' (concept-stage)':''}</div>
+      <div class="scr-verdict${_isHigh?' is-high':''}"><span class="vdot"></span><b>${_confWord}</b>&nbsp;&middot;&nbsp;$${_rate}/GIA&nbsp;&middot;&nbsp;<span class="scr-estclass" title="Internal estimate class from comparable-project coverage + confidence, aligned to AACE-style band widths — NOT a design-maturity (AACE 18R-97) classification.">Estimate class ${r.aaceClass}${r.aaceClass!=='3'?' (concept-stage)':''}</span></div>
+      ${r.comps.length < 5 ? `<div class="scr-thin"><span class="material-symbols-outlined" aria-hidden="true">warning</span>Indicative only — based on ${r.comps.length} comparable project${r.comps.length===1?'':'s'}. Treat as a directional range, not a point figure.</div>` : ''}
     </div>
 
     <!-- Proof strip: answers the skeptical-director question ("is this real?") in plain
@@ -12893,6 +13063,7 @@ function render() {
       </div>
       <button type="button" class="scr-proof-see" id="scrSeeComps">See all ${r.comps.length} projects <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></button>
       <div class="scr-proof-poc">Representative portfolio data &mdash; not live REWS actuals</div>
+      <div class="scr-proof-factors">${(() => { const s = factorStatusSummary(); return `Cost factors: <b>${s.sourced}/${s.total} sourced</b> &mdash; the remaining ${s.assumed} ${s.assumed === 1 ? 'is an internal working assumption' : 'are internal working assumptions'} pending REWS sourcing (see Basis of Estimate).`; })()}</div>
     </div>
 
     <!-- R-P1-1: decision content first. Hero -> The read -> Budget all-in lands in the
@@ -12904,7 +13075,7 @@ function render() {
 
     <div class="scr-section"><h2 class="scr-label">Budget all-in</h2>
       <div class="scr-commit"><div class="ca">${fmt$(r.tpc)}</div><div class="cs">Construction <b>${fmt$(r.total)}</b>&nbsp; +&nbsp; ${(r.softCostPct*100).toFixed(0)}% soft (${fmt$(r.softCosts)})&nbsp; +&nbsp; ${(r.contingencyPct*100).toFixed(0)}% contingency (${fmt$(r.contingency)})</div></div>
-      <div class="scr-scope"><b>Scope:</b> construction is contractor hard cost. The ${(r.contingencyPct*100).toFixed(0)}% is owner-held risk contingency for AACE Class ${r.aaceClass} &mdash; separate from any GC contingency in the unit rates. Soft costs are A&amp;E, PM, and permits.</div>
+      <div class="scr-scope"><b>Scope:</b> construction is contractor hard cost. The ${(r.contingencyPct*100).toFixed(0)}% is owner-held risk contingency for estimate class ${r.aaceClass} &mdash; separate from any GC contingency in the unit rates. Soft costs are A&amp;E, PM, and permits.</div>
     </div>
 
     <div class="scr-section"><h2 class="scr-label">What moves it</h2>
@@ -12919,16 +13090,18 @@ function render() {
       <div class="scr-ana-bar">${_bk.map((b,i)=>`<div style="flex:${b.v};background:${b.c};${i?'box-shadow:inset 1px 0 0 rgba(0,0,0,0.18);':''}"></div>`).join('')}</div>
       <div class="scr-ana-leg">${_bk.map(b=>`<div class="scr-al"><span class="sw" style="background:${b.c}"></span>${b.n}<span class="av">${fmt$(b.v)}</span></div>`).join('')}</div>
       <div class="scr-ana-tot"><span>Construction total</span><b>${fmt$(r.total)}</b></div>
+      <div class="scr-ana-tot"><span>Soft costs</span><b>${fmt$(r.softCosts)}</b></div>
+      <div class="scr-ana-tot"><span>Contingency</span><b>${fmt$(r.contingency)}</b></div>
+      <div class="scr-ana-tot" style="border-top:1px solid rgba(0,0,0,0.1); margin-top:6px; padding-top:8px;"><span>= Total Project Cost</span><b>${fmt$(r.tpc)}</b></div>
     </div>
 
     <div class="scr-section"><h2 class="scr-label">How we get to the number</h2>
       <div class="scr-bridge">
-        <div class="scr-bn"><div class="bv">$${_obs}</div><div class="bl">Comparable<br>projects, as-built</div></div>
-        <div class="scr-barrow"><span class="bal">adjusted to your project</span><span>${_adjSign}${Math.abs(_adjLift)}%</span></div>
-        <div class="scr-bn final"><div class="bv">$${_rate}</div><div class="bl">Your rate<br>($/GIA)</div></div>
+        <div class="scr-bn" title="Each comp is weighted by its similarity to your project (region 36% / size 30% / recency 20% / ownership 14%); the rate shown is the weighted median of those city- and escalation-adjusted comps."><div class="bv">$${_rate}</div><div class="bl">Similarity-weighted median<br>of adjusted comps</div></div>
         <div class="scr-barrow"><span class="bal">&times; ${_giaK} sqft</span><span>=</span></div>
         <div class="scr-bn final"><div class="bv">${fmt$(r.total)}</div><div class="bl">Benchmarked<br>construction</div></div>
       </div>
+      <div class="scr-scope" style="margin-top: 12px; color: #666; font-size: 13px;"><b>Note:</b> The raw, unadjusted median of these comps as-built was $${_obs}/sf.</div>
     </div>
 
     <div class="scr-section"><h2 class="scr-label">Why you can trust it</h2>
@@ -12947,7 +13120,13 @@ function render() {
           <div class="scr-ic-label">How confident the model is</div>
           <div class="scr-conf-num"><span class="cn">${r.conf}</span><span class="cd">/ 100</span><span class="cb${_isHigh?' is-high':''}">${_isHigh?'High':r.conf>=60?'Moderate':'Low'}</span></div>
           <div class="scr-conf-meter"><span style="width:${r.conf}%"></span></div>
-          <div class="scr-conf-factors">${[['Sample',r.sizeSc],['Match',r.simSc],['Consist.',r.varSc],['Recency',r.recSc],['Stability',r.stabSc]].map(ff=>`<div class="scr-cf${ff[1]/20<0.75?' mid':''}"><div class="b"><span style="width:${Math.round(Math.min(1,ff[1]/20)*100)}%"></span></div><div class="l">${ff[0]}</div></div>`).join('')}</div>
+          <div class="scr-conf-factors">${[
+            ['Sample', r.sizeSc, `Sample size — ${r.comps.length} of ${inp.maxN} max comps, scored against a floor of 8`],
+            ['Match', r.simSc, 'Similarity match — region 36% / size 30% / recency 20% / ownership 14%'],
+            ['Consist.', r.varSc, 'Bucket consistency — avg coefficient of variation across MEP, Interiors, Base-Building & FF&E, scored vs a 0.32 ceiling'],
+            ['Recency', r.recSc, 'Data recency — how close the comps are to your target date'],
+            ['Stability', r.stabSc, `Estimate stability — leave-one-out: holds when any single comp is dropped (${r.inRangeCount}/${r.comps.length} within ±30%)`]
+          ].map(ff=>`<div class="scr-cf${ff[1]/20<0.75?' mid':''}" title="${ff[2]}"><div class="b"><span style="width:${Math.round(Math.min(1,ff[1]/20)*100)}%"></span></div><div class="l">${ff[0]}</div></div>`).join('')}</div>
           <div class="scr-ic-why">${r.weakestFactor ? `Weakest pillar: <b>${r.weakestFactor.name}</b> &mdash; worth pressure-testing.` : 'All five pillars hold up.'}</div>
         </div>
       </div>
@@ -12959,7 +13138,7 @@ function render() {
           <div class="scr-pr-probe" id="scrProbe"></div><div class="scr-pr-mk" id="scrMk"></div><div class="scr-pr-flag" id="scrFlag"></div>
         </div>
         <div class="scr-pr-ends"><div><div class="v">${fmt$(r.p10)}</div><div class="l">Low &middot; P10</div></div><div class="hi"><div class="v">${fmt$(r.p90)}</div><div class="l">High &middot; P90</div></div></div>
-        <div class="scr-pr-cap">A <b>&minus;${r.p10Pct}% / +${r.p90Pct}%</b> band is honest for an <b>AACE Class ${r.aaceClass}</b> estimate &mdash; it carries escalation and scope risk beyond comp spread, and tightens as design develops.</div>
+        <div class="scr-pr-cap">A <b>&minus;${r.p10Pct}% / +${r.p90Pct}%</b> band is honest for an <b>estimate class ${r.aaceClass}</b> benchmark &mdash; it carries escalation and scope risk beyond comp spread, and tightens as design develops.</div>
       </div>
     </div>
 
@@ -12969,16 +13148,16 @@ function render() {
     </div>
 
   </div></div></div></div>`;
-  scrDrawReadout(r, inp);
+  // safe(): one failing infographic must not abort the rest of the readout (the hero
+  // number + numbers are already in the markup above; charts are enhancement).
+  safe('scrDrawReadout', () => scrDrawReadout(r, inp));
 
   // v5.1: animate from OBSERVED median × GIA → final total. Tells the full cost-build story:
   // raw observed comp median → adjusted to target city + date → bucket multipliers → final.
   animateHeroAmount(r.total, r.observedBaseRate * inp.gia);
-  // Sweep the hero confidence ring
-  requestAnimationFrame(() => animateHeroConfRing());
   updatePinnedHero(r, inp);
   // PE Insight strip rendered into its mount point (now in Band C, full-width)
-  renderPEInsight(r, inp);
+  safe('renderPEInsight', () => renderPEInsight(r, inp));
   // v6.0b: hero inline buttons (copyBtn/briefBtn/saveBtn2) removed — sticky bar owns these actions.
   // Null-guard kept in case any external code still references the old IDs.
   const _cb = document.getElementById('copyBtn');
@@ -13037,8 +13216,7 @@ function render() {
   // made every bucket read positive vs the pool regardless of scope).
   const compMedians = {};
   BUCKETS.forEach(b => {
-    const rates = r.comps.map(p => (p.costs[b] / p.GIA) * p.adjMult).filter(v => v > 0).sort((a, c) => a - c);
-    compMedians[b] = rates.length ? rates[Math.floor(rates.length / 2)] : 0;
+    compMedians[b] = r.bRates[b] || 0;
   });
 
   // Sort state — default to total descending
@@ -13084,7 +13262,7 @@ function render() {
         <button class="bucket-col bucket-col-sort r ${sortBy === 'total' ? 'is-active' : ''}" data-sort="total">Total <span class="sort-ind">${sortIcon('total')}</span></button>
         <button class="bucket-col bucket-col-sort r ${sortBy === 'pct' ? 'is-active' : ''}" data-sort="pct">% of total <span class="sort-ind">${sortIcon('pct')}</span></button>
         <button class="bucket-col bucket-col-sort r ${sortBy === 'bench' ? 'is-active' : ''}" data-sort="bench" title="Your all-in rate (incl. occupancy/schedule premiums) vs comp-pool median. The Cost Brief shows the base-scope cut, which excludes premiums.">vs comp median <span class="sort-ind">${sortIcon('bench')}</span></button>
-        <span class="bucket-col bucket-col-flag">Variance</span>
+        <span class="bucket-col bucket-col-flag" title="Cost-weighted statistical risk: this bucket's dispersion (CV) scaled by its share of total project cost. Flags buckets that are both highly uncertain and very expensive.">Risk</span>
       </div>
       ${rowsSorted.map(b => {
         const adj = r.bRatesAdj[b];
@@ -13093,14 +13271,12 @@ function render() {
         const cvVal = r.bStats[b].cv;
         const bench = compMedians[b];
         const benchDelta = bench > 0 ? ((adj - bench) / bench) * 100 : 0;
-        // v6.5 §2.2: variance flag = cost-weighted risk — the share of TOTAL
-        // project cost this bucket's deviation from the comparable baseline
-        // represents. Largest-money risk flags High, not a noisy small bucket.
-        // (CV/dispersion preserved as the flag's hover detail.)
-        const riskFrac = bench > 0 ? (Math.abs(adj - bench) * inp.gia) / r.total : 0;
-        // Thresholds calibrated on rendered data (v6.5 §2.2): an Occupied
-        // project's +20% MEP & Interiors premium (~28-30% of spend each) must
-        // BOTH read High, not split High/Med on a hairline. Low <2%, High ≥4%.
+        // v7.0 §2.2: variance flag = true cost-weighted statistical risk —
+        // the bucket's statistical dispersion (CV) scaled by its share of total cost.
+        // Largest-money, highly uncertain buckets flag High.
+        const riskFrac = cvVal * (amt / r.total);
+        // Thresholds calibrated on CV * fraction: e.g. 0.25 CV * 0.30 cost = 0.075 risk.
+        // Low <2%, High ≥4% works beautifully for highlighting major risk items.
         const flag = riskFrac < 0.02 ? ['var-low', 'Low', 'check_circle'] : riskFrac < 0.04 ? ['var-med', 'Med', 'info'] : ['var-high', 'High', 'warning'];
         const benchCls = bench === 0 ? 'na' : Math.abs(benchDelta) < 8 ? 'neutral' : benchDelta > 0 ? 'high' : 'low';
         const benchStr = bench > 0 ? `${benchDelta > 0 ? '+' : ''}${benchDelta.toFixed(0)}%` : '—';
@@ -13215,7 +13391,7 @@ function render() {
   }
 
   // Scatter
-  renderScatter(r, inp);
+  safe('renderScatter', () => renderScatter(r, inp));
 
   // v5.1: Audit waterfall — full reconciliation chain. Each chip is the math step
   // the model applied. User can multiply across and reproduce the final number.
@@ -13374,16 +13550,15 @@ function render() {
         <td class="r"><span class="comp-mult">×${cityF}</span></td>
         <td class="r"><span class="comp-mult">×${escF}</span></td>
         <td class="r"><b>$${adjusted}</b></td>
-        <td class="r sim-cell"><div class="match-content"><div class="match-bar"><div class="match-bar-fill" style="width:${(p.sim * 100).toFixed(0)}%"></div></div><span class="match-pct">${(p.sim * 100).toFixed(0)}%</span></div><div class="sim-breakdown">${breakdown}<div style="margin-top:6px;padding-top:6px;border-top:1px solid #5F6368"><span class="lbl">Total:</span><span class="v">${(p.sim * 100).toFixed(0)}%</span></div></div></td>
+        <td class="r sim-cell"><div class="match-content"><div class="match-bar"><div class="match-bar-fill" style="width:${Math.max(4, Math.min(100, (p.sim - 0.5) * 200)).toFixed(0)}%"></div></div><span class="match-pct">${(p.sim * 100).toFixed(0)}%</span></div><div class="sim-breakdown">${breakdown}<div style="margin-top:6px;padding-top:6px;border-top:1px solid #5F6368"><span class="lbl">Total:</span><span class="v">${(p.sim * 100).toFixed(0)}%</span></div></div></td>
         <td class="r"><button class="comp-x" data-exclude="${p.id}" type="button" title="Exclude this comp" aria-label="Exclude comp ${p.id}"><span class="material-symbols-outlined">close</span></button></td>
       </tr>`;
     }).join('')}
     </tbody>
     <tfoot><tr>
-      <td colspan="4" class="comp-tfoot-label">Weighted median (similarity-weighted)</td>
+      <td colspan="4" class="comp-tfoot-label" title="Each comp is weighted by similarity to your project: region 36% / size 30% / recency 20% / ownership 14%. The figures below are the weighted medians of each column.">Weighted median (similarity-weighted)</td>
       <td class="r">$${Math.round(r.observedBaseRate)}</td>
-      <td class="r"><span class="comp-mult">×${r.avgCityNorm.toFixed(2)}</span></td>
-      <td class="r"><span class="comp-mult">×${r.escF.toFixed(2)}</span></td>
+      <td class="r comp-tfoot-arrow" colspan="2">after city + escalation →</td>
       <td class="r"><b>$${Math.round(r.baseRate)}</b></td>
       <td colspan="2"></td>
     </tr></tfoot>
@@ -13401,6 +13576,29 @@ window.__sc_restore = function () { STATE.excluded.clear(); render(); };
 // ============================================================================
 // DATA LOADING
 // ============================================================================
+// v13: a single always-available data-status banner. Surfaces structural refusals (error),
+// stale-fallback / skipped-row warnings (warn), and clears on a clean live load. Self-creating
+// so it doesn't depend on any markup; styled inline so it needs no CSS and reads in both themes.
+function showDataNotice(msg, level) {
+  let el = document.getElementById('data-notice');
+  if (!msg) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'data-notice';
+    el.setAttribute('role', level === 'error' ? 'alert' : 'status');
+    el.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:99999;padding:8px 16px;'
+      + 'text-align:center;font:500 12.5px/1.45 ui-sans-serif,system-ui,sans-serif;';
+    document.body.appendChild(el);
+  }
+  const palette = level === 'error'
+    ? { bg: '#5b1410', fg: '#ffdbd5', bd: '#8a221b' }
+    : { bg: '#3a2e10', fg: '#ffe6a3', bd: '#5e4a18' };
+  el.style.background = palette.bg;
+  el.style.color = palette.fg;
+  el.style.borderBottom = '1px solid ' + palette.bd;
+  el.innerHTML = msg;
+}
+
 async function loadData() {
   let csvText = null, source = 'embedded';
   try {
@@ -13412,26 +13610,65 @@ async function loadData() {
   } catch (e) {}
   if (!csvText) csvText = PROJECTS_CSV;
   const rows = parseCSV(csvText);
+
+  // STRUCTURAL CHECK (refuse): the engine reads columns by exact header name, so a missing or
+  // renamed required column would silently read blank → a $0 bucket → a wrong estimate. Refuse
+  // to load rather than show numbers that can't be trusted.
+  const REQUIRED = ['Project Number', 'Project Type', 'Construction Start Date', 'RPDC Date',
+    'GIA', 'Estimate at Completion (EAC)', 'Currency Rate', 'General (GNL)', 'Site (STE)',
+    'Base/Building Core & Shell BSB', 'MEP', 'Interiors', 'FF&E', 'Legacy'];
+  const present = rows.length ? Object.keys(rows[0]) : [];
+  const missing = REQUIRED.filter(h => !present.includes(h));
+  if (rows.length && missing.length) {
+    PROJECTS = [];
+    showDataNotice(`Data not loaded — the spreadsheet is missing required column(s): <b>${missing.join(', ')}</b>. Fix the header row and reload. No estimate can be trusted until the columns match.`, 'error');
+    return;
+  }
+
   const result = normalizeWithValidation(rows);
   PROJECTS = result.valid;
-  // data-source UI was removed in v3.1; updater is now a no-op but kept
-  // for backwards compatibility in case the element gets re-added.
-  const el = document.getElementById('data-source-text');
-  const wrap = document.querySelector('.data-source');
-  if (el && wrap) {
-    wrap.classList.remove('warn', 'error');
-    if (result.errors.length) {
-      const total = rows.length;
-      const skipped = result.errors.length;
-      const sourceLabel = source === 'csv' ? 'projects.csv' : 'embedded seed';
-      el.innerHTML = `Data source: ${sourceLabel} · Loaded ${PROJECTS.length}/${total} · <span class="data-source-warning" title="${result.errors.slice(0, 8).map(e => e.replace(/"/g, '&quot;')).join('&#10;')}${skipped > 8 ? '&#10;... and ' + (skipped - 8) + ' more' : ''}">${skipped} skipped</span>`;
-      wrap.classList.add('warn');
-    } else {
-      const sourceLabel = source === 'csv' ? 'projects.csv' : 'embedded seed';
-      el.textContent = source === 'csv'
-        ? `Data source: ${sourceLabel} (${PROJECTS.length} projects)`
-        : `Data source: ${sourceLabel} (${PROJECTS.length} projects) — serve via HTTP to load projects.csv`;
-    }
+
+  // CORPUS-QUALITY CHECKS (keep + warn): real data the model first meets internally may carry
+  // label drift or costs outside the 7 buckets. Rows are kept (a label typo shouldn't lose a real
+  // comp), but flagged so they're visible and fixable rather than silently misrouted/miscalibrated.
+  // v14: project type (work scope) keyed in TYPOLOGY_DURATION; program (use) keyed in the
+  // cost-profile tables. Validate each against its own list.
+  const knownTypes = Object.keys(TYPOLOGY_DURATION);
+  const knownPrograms = Object.keys(TYPOLOGY_SOFTCOST_PCT);
+  const knownRegions = ['NA', 'EMEA', 'APAC', 'LATAM'];
+  const unknownTypes = [...new Set(result.valid.map(p => p.type).filter(t => t && !knownTypes.includes(t)))];
+  const unknownPrograms = [...new Set(result.valid.map(p => p.programType).filter(t => t && !knownPrograms.includes(t)))];
+  const unknownRegions = [...new Set(result.valid.map(p => p.region).filter(r => r && !knownRegions.includes(r)))];
+  const eacMismatch = result.valid.filter(p => {
+    const bsum = BUCKETS.reduce((a, b) => a + (p.costs[b] || 0), 0);
+    return p.EAC > 0 && Math.abs(p.EAC - bsum) / p.EAC > 0.02;
+  }).length;
+  const qNotes = [];
+  if (unknownTypes.length) qNotes.push(`${unknownTypes.length} unrecognized project type(s): ${unknownTypes.slice(0, 6).join(', ')} — won't match the model's typology (no schedule basis)`);
+  if (unknownPrograms.length) qNotes.push(`${unknownPrograms.length} unrecognized program type(s): ${unknownPrograms.slice(0, 6).join(', ')} — falls back to the default cost profile (soft/contingency)`);
+  if (unknownRegions.length) qNotes.push(`${unknownRegions.length} unrecognized region(s): ${unknownRegions.join(', ')} — should be NA / EMEA / APAC / LATAM`);
+  if (eacMismatch) qNotes.push(`${eacMismatch} row(s) where EAC ≠ sum of cost buckets (>2%) — the uncertainty range may be miscalibrated for these`);
+  const qSpan = qNotes.length
+    ? ` · <span title="${qNotes.join('&#10;').replace(/"/g, '&quot;')}" style="text-decoration:underline dotted;cursor:help;">${qNotes.length} data-quality flag${qNotes.length === 1 ? '' : 's'}</span>`
+    : '';
+
+  // SURFACE (skip + warn): the trust footguns were silent stale-fallback data, silently dropped
+  // rows, and silent label/EAC drift. This one banner makes all of them visible.
+  const total = result.valid.length + result.errors.length;
+  const srcLabel = source === 'sheet' ? 'live Google Sheet' : source === 'csv' ? 'projects.csv' : 'built-in sample data';
+  const skipTip = result.errors.slice(0, 10).map(e => e.replace(/"/g, '&quot;')).join('&#10;')
+    + (result.errors.length > 10 ? '&#10;…and ' + (result.errors.length - 10) + ' more' : '');
+  const skipSpan = result.errors.length
+    ? ` · <span title="${skipTip}" style="text-decoration:underline dotted;cursor:help;">${result.errors.length} row${result.errors.length === 1 ? '' : 's'} skipped</span>`
+    : '';
+  if (source === 'embedded') {
+    showDataNotice(`Using <b>built-in sample data</b> — not live. Serve over HTTP or connect the Sheet to load real data.${skipSpan}${qSpan}`, 'warn');
+  } else if (!result.valid.length) {
+    showDataNotice(`No usable projects loaded from ${srcLabel}.${skipSpan}`, 'warn');
+  } else if (result.errors.length || qSpan) {
+    showDataNotice(`Loaded <b>${result.valid.length} of ${total}</b> projects from ${srcLabel}${skipSpan}${qSpan}`, 'warn');
+  } else {
+    showDataNotice('', null); // clean load from the live source — no nag
   }
 }
 
@@ -13644,6 +13881,8 @@ function applyAutoNameSuggestion(inp) {
       const city = document.getElementById('i-city');
       const gia = document.getElementById('i-gia');
       if (type) type.value = cfg.type;
+      const prog = document.getElementById('i-program');
+      if (prog && cfg.programType) { prog.value = cfg.programType; prog.dispatchEvent(new Event('change', { bubbles: true })); }
       if (region) region.value = cfg.region;
       if (type) type.dispatchEvent(new Event('change', { bubbles: true }));
       if (region) region.dispatchEvent(new Event('change', { bubbles: true }));
@@ -13657,8 +13896,8 @@ function applyAutoNameSuggestion(inp) {
         if (typeof updatePreModelPreview === 'function') updatePreModelPreview();
       }, 30);
     };
-    if (which === 'typical-mv') apply({ type: 'Office Fit-Out', region: 'NA', city: 'Mountain View', gia: 25000 });
-    else if (which === 'stress-lab') apply({ type: 'Lab / R&D', region: 'APAC', city: 'Singapore', gia: 50000 });
+    if (which === 'typical-mv') apply({ type: 'Fit-Out', programType: 'Office', region: 'NA', city: 'Mountain View', gia: 25000 });
+    else if (which === 'stress-lab') apply({ type: 'Fit-Out', programType: 'Lab / R&D', region: 'APAC', city: 'Singapore', gia: 50000 });
     else if (which === 'continue') {
       const saved = JSON.parse(localStorage.getItem('should-cost-recents') || '[]');
       if (saved && saved.length) {
@@ -13688,7 +13927,18 @@ function applyAutoNameSuggestion(inp) {
     setTimeout(tryInit, 300);
   }
 })();
-document.getElementById('i-region').addEventListener('change', () => {
+// v13 resilience: a single failure during boot/wiring must never blank the whole app.
+// `safe` isolates each step; the global handlers turn an uncaught error into a console
+// log instead of a dead page. `_on` wires a listener only if the element exists, so a
+// missing form control can't halt script execution before the boot IIFE runs.
+// (Parse-time throws in EARLIER statements can't be caught here — those are guarded at
+// their source, e.g. the module-level d3 GRATICULE.)
+function safe(label, fn) { try { return fn(); } catch (e) { console.error('[init] ' + label, e); } }
+window.addEventListener('error', (e) => { console.error('[uncaught]', e.error || e.message); });
+window.addEventListener('unhandledrejection', (e) => { console.error('[unhandled-rejection]', e.reason); });
+const _on = (id, evt, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(evt, fn); };
+
+_on('i-region', 'change', () => {
   populateCities();
   onInputChanged();
   // v4.6: hero globe responds to region change immediately, before Run is pressed.
@@ -13699,11 +13949,10 @@ document.getElementById('i-region').addEventListener('change', () => {
     animateGlobeTo(REGION_LNG_CENTER[newRegion], 950);
   }
 });
-['i-city'].forEach(id => {
-  document.getElementById(id).addEventListener('change', onInputChanged);
-});
+_on('i-city', 'change', onInputChanged);
 ['i-gia', 'i-cs', 'i-rpdc', 'i-own', 'i-occ', 'i-esc', 'i-maxn', 'i-minsim'].forEach(id => {
   const el = document.getElementById(id);
+  if (!el) return;
   el.addEventListener('change', onInputChanged);
   if (el.type === 'number') el.addEventListener('input', onInputChanged);
 });
@@ -13713,32 +13962,38 @@ if (nameEl) {
     nameEl.closest('.m3-field')?.classList.toggle('has-value', nameEl.value !== '');
   });
 }
-document.getElementById('i-type').addEventListener('change', () => {
+_on('i-type', 'change', () => {
   STATE.excluded.clear();
   STATE.bucketAdj = { GNL: 0, STE: 0, BSB: 0, MEP: 0, Interiors: 0, FFE: 0, Legacy: 0 };
   onInputChanged();
 });
+// v14: program/use change re-scores comps + re-picks the cost profile
+_on('i-program', 'change', () => { STATE.excluded.clear(); onInputChanged(); });
 
 // Disclosure toggle
-document.getElementById('model-toggle').addEventListener('click', () => {
-  document.getElementById('model-disclosure').classList.toggle('open');
+_on('model-toggle', 'click', () => {
+  document.getElementById('model-disclosure')?.classList.toggle('open');
 });
 
 // Initial load
+// NOTE: wire the entire UI FIRST, then load data. Data loading must never gate the
+// dropdowns/buttons — under a slow/failed data source (e.g. Apps Script google.script.run
+// to a Sheet) a blocking `await loadData()` here would leave the whole UI dead.
 (async () => {
-  await loadData();
-  populateCities();
-  initM3Components();
-  initSegmentedControls();
-  initGIAField();
-  initTimeline();
-  initTimelineToggle();
-  initSectionNav();
-  initModelPresets();
-  initRichNumberFields();
-  initKeyboardShortcuts();
-  initPinnedHero();
-  initThinkingOverlay(); // v3.9: create the persistent thinking overlay once
+  // Each init is isolated: one throwing (e.g. a missing DOM node) no longer skips the
+  // rest, so the dropdowns/Run button always wire even if one widget fails to set up.
+  safe('populateCities', populateCities);
+  safe('initM3Components', initM3Components);
+  safe('initSegmentedControls', initSegmentedControls);
+  safe('initGIAField', initGIAField);
+  safe('initTimeline', initTimeline);
+  safe('initTimelineToggle', initTimelineToggle);
+  safe('initSectionNav', initSectionNav);
+  safe('initModelPresets', initModelPresets);
+  safe('initRichNumberFields', initRichNumberFields);
+  safe('initKeyboardShortcuts', initKeyboardShortcuts);
+  safe('initPinnedHero', initPinnedHero);
+  safe('initThinkingOverlay', initThinkingOverlay); // v3.9: persistent thinking overlay
   // Reposition the overlay if the user scrolls or the window resizes while it's active
   window.addEventListener('scroll', () => {
     const ov = document.getElementById('thinking-overlay');
@@ -13769,10 +14024,17 @@ document.getElementById('model-toggle').addEventListener('click', () => {
     _rpdcEl.value = _ym(_rpdc);
   }
   renderRecents();
-  // v4.0: render the empty state on load (results are gated behind the Run button)
-  render();
+  // Data loads AFTER the UI is fully wired (see note at top of this IIFE). The corpus is
+  // only needed from here on (render/preview); a slow or failed load no longer blocks the UI.
+  await loadData();
+  // v13: now that the corpus is loaded, repopulate type/region/city dropdowns from it so the
+  // options match the data (seamless when the real Sheet replaces the demo). Guarded.
+  safe('applyCorpusOptions', applyCorpusOptions);
+  // v4.0: render the empty state on load (results are gated behind the Run button).
+  // safe(): a render failure here must not stop the Run button / sticky bar from wiring below.
+  safe('render', render);
   // v4.7: populate the pre-model preview meter with initial values
-  updatePreModelPreview();
+  safe('updatePreModelPreview', updatePreModelPreview);
   // Wire the Run button — this is the entire interaction model now
   const runBtn = document.getElementById('runBtn');
   if (runBtn) runBtn.addEventListener('click', runModel);
