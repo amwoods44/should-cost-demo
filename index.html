@@ -69,12 +69,14 @@
   --el-1: 0 1px 2px 0 rgba(60,64,67,0.10), 0 1px 3px 1px rgba(60,64,67,0.05);
   --el-2: 0 1px 3px 0 rgba(60,64,67,0.14), 0 4px 8px 3px rgba(60,64,67,0.06);
   --el-3: 0 4px 8px 3px rgba(60,64,67,0.12), 0 1px 3px 0 rgba(60,64,67,0.10);
-  --el-hero: 0 1px 3px rgba(60,64,67,0.04), 0 8px 24px -6px rgba(66,133,244,0.18), 0 24px 60px -12px rgba(156,39,176,0.12);
+  --el-hero: 0 1px 3px rgba(60,64,67,0.04), 0 8px 24px -6px rgba(66,133,244,0.18), 0 24px 60px -12px rgba(24,90,188,0.12);
   --ink: #0A0E1A;
   --ink-2: #1F2937;
-  --gradient-signature: linear-gradient(135deg, #4285F4 0%, #9168D5 50%, #EB66B7 100%);
-  --gradient-text: linear-gradient(135deg, #1A73E8 0%, #4338CA 60%, #6D28D9 100%);
-  --gradient-page-bg: radial-gradient(ellipse 100% 60% at 50% 0%, rgba(66,133,244,0.06) 0%, rgba(156,39,176,0.03) 40%, transparent 70%);
+  /* de-slop: signature accents stay in the Google-blue family — on-tone two-stop
+     ramps, never the blue→purple→pink "AI product" sweep */
+  --gradient-signature: linear-gradient(135deg, #1A73E8 0%, #185ABC 100%);
+  --gradient-text: linear-gradient(135deg, #1A73E8 0%, #174EA6 100%);
+  --gradient-page-bg: radial-gradient(ellipse 100% 60% at 50% 0%, rgba(66,133,244,0.06) 0%, rgba(26,115,232,0.03) 40%, transparent 70%);
 
   /* Typography — Google Sans first (resolves for Googlers internally), Roboto fallback */
   --font-display: 'Google Sans Display', 'Google Sans', 'Roboto Flex', 'Roboto', -apple-system, sans-serif;
@@ -104,6 +106,9 @@
   --g500: #6c7682;
   --g600: #8c96a2;
   --accent-ink: #9DC0FF; /* a11y: accessible blue for small accent text on dark */
+  /* de-slop: light-blue ramps so gradient-clipped text stays legible on navy */
+  --gradient-signature: linear-gradient(135deg, #4285F4 0%, #1A73E8 100%);
+  --gradient-text: linear-gradient(135deg, #9DC0FF 0%, #669DF6 100%);
   --g700: #abb4c0;
   --g800: #cdd4dd;
   --g900: #eef1f6;
@@ -118,9 +123,9 @@
   --el-1: 0 1px 2px rgba(0,0,0,0.5);
   --el-2: 0 2px 8px rgba(0,0,0,0.5);
   --el-3: 0 8px 22px rgba(0,0,0,0.55);
-  --el-hero: 0 8px 44px -10px rgba(66,133,244,0.32), 0 28px 90px -24px rgba(156,39,176,0.22);
+  --el-hero: 0 8px 44px -10px rgba(66,133,244,0.32), 0 28px 90px -24px rgba(24,90,188,0.22);
   /* page wash — a touch stronger so the hero glow reads on dark */
-  --gradient-page-bg: radial-gradient(ellipse 100% 60% at 50% 0%, rgba(66,133,244,0.14) 0%, rgba(156,39,176,0.08) 42%, transparent 72%);
+  --gradient-page-bg: radial-gradient(ellipse 100% 60% at 50% 0%, rgba(66,133,244,0.14) 0%, rgba(24,90,188,0.08) 42%, transparent 72%);
 }
 
 * { box-sizing: border-box; }
@@ -422,12 +427,12 @@ body {
 .phm-conf-high { background: rgba(30, 142, 62, 0.14); color: #137333; }
 .phm-conf-med  { background: rgba(249, 171, 0, 0.18); color: #B06000; }
 .phm-conf-low  { background: rgba(217, 48, 37, 0.14); color: #C5221F; }
-/* v3.6: back-to-top is now a real FAB with the gradient signature treatment */
+/* back-to-top FAB — solid accent */
 .pinned-hero-back {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4285F4 0%, #7C5DC9 50%, #C7569D 100%);
+  background: var(--gradient-signature);
   border: none;
   color: white;
   cursor: pointer;
@@ -436,11 +441,11 @@ body {
   justify-content: center;
   transition: transform 0.15s, box-shadow 0.18s;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.22);
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.22);
 }
 .pinned-hero-back:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.30);
+  box-shadow: 0 4px 14px rgba(26, 115, 232, 0.30);
 }
 .pinned-hero-back:active { transform: translateY(0); }
 .pinned-hero-back .material-symbols-outlined {
@@ -505,7 +510,7 @@ body {
   gap: 6px;
   font-size: 11px;
   color: var(--g700);
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.06) 0%, rgba(124, 58, 237, 0.04) 100%);
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.06) 0%, rgba(26, 115, 232, 0.04) 100%);
   border: 1px solid rgba(66, 133, 244, 0.18);
   padding: 4px 12px 4px 8px;
   border-radius: var(--r-pill);
@@ -712,7 +717,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), rgba(124, 58, 237, 0.08));
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), rgba(26, 115, 232, 0.08));
   color: var(--gblue-700);
 }
 .typology-menu-icon .material-symbols-outlined,
@@ -853,7 +858,7 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.1) 0%, rgba(26, 115, 232, 0.1) 100%);
   color: var(--gblue-700);
   font-size: 18px !important;
 }
@@ -1028,7 +1033,7 @@ kbd {
 .rich-num-bar-signature {
   background: linear-gradient(90deg,
     rgba(66, 133, 244, 0.18) 0%,
-    rgba(124, 58, 237, 0.22) 100%);
+    rgba(26, 115, 232, 0.22) 100%);
 }
 .rich-num-bar-fill {
   position: absolute;
@@ -1042,7 +1047,7 @@ kbd {
   background: linear-gradient(90deg, #4285F4 0%, #F9AB00 60%, #EA4335 100%);
 }
 .rich-num-bar-signature .rich-num-bar-fill {
-  background: linear-gradient(90deg, #4285F4 0%, #7C3AED 100%);
+  background: linear-gradient(90deg, var(--gblue-400) 0%, var(--gblue-700) 100%);
 }
 .rich-num-bar-thumb {
   position: absolute;
@@ -1087,7 +1092,7 @@ kbd {
   transition: background 0.22s, transform 0.18s, box-shadow 0.22s;
 }
 .rich-num-dot.active {
-  background: linear-gradient(135deg, #4285F4 0%, #7C3AED 100%);
+  background: var(--gblue-600);
   transform: scale(1.18);
   box-shadow: 0 1px 3px rgba(66, 133, 244, 0.35);
 }
@@ -1110,7 +1115,7 @@ kbd {
   margin-left: 2px;
 }
 .esc-mode-auto {
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.12), rgba(124, 58, 237, 0.10));
+  background: rgba(66, 133, 244, 0.12);
   color: var(--gblue-800);
 }
 .esc-mode-override {
@@ -1201,7 +1206,7 @@ kbd {
   cursor: pointer;
   position: relative;
   margin: 8px 0;
-  background-image: linear-gradient(90deg, var(--gblue-500), #7C3AED);
+  background-image: linear-gradient(90deg, var(--gblue-500), var(--gblue-700));
   background-repeat: no-repeat;
   background-size: 50% 100%; /* updated via JS */
   background-position: 0 0;
@@ -1636,16 +1641,16 @@ kbd {
   transition: transform 0.1s, box-shadow 0.1s;
 }
 .timeline-handle-end {
-  background: #7C3AED;
-  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.45), 0 0 0 1px rgba(109, 40, 217, 0.2);
+  background: var(--gblue-800);
+  box-shadow: 0 2px 8px rgba(24, 90, 188, 0.45), 0 0 0 1px rgba(24, 90, 188, 0.2);
 }
 .timeline-handle-end:hover {
-  box-shadow: 0 3px 14px rgba(109, 40, 217, 0.55), 0 0 0 7px rgba(109, 40, 217, 0.12);
+  box-shadow: 0 3px 14px rgba(24, 90, 188, 0.55), 0 0 0 7px rgba(24, 90, 188, 0.12);
   transform: translate(-50%, -50%) scale(1.15);
 }
 .timeline-handle-end.dragging {
   cursor: grabbing;
-  box-shadow: 0 5px 20px rgba(109, 40, 217, 0.6), 0 0 0 10px rgba(109, 40, 217, 0.18);
+  box-shadow: 0 5px 20px rgba(24, 90, 188, 0.6), 0 0 0 10px rgba(24, 90, 188, 0.18);
   transform: translate(-50%, -50%) scale(1.28);
   transition: transform 0.1s, box-shadow 0.1s;
 }
@@ -1806,7 +1811,7 @@ kbd {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.08) 0%, rgba(124, 58, 237, 0.06) 100%);
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.08) 0%, rgba(26, 115, 232, 0.06) 100%);
   border: 1px solid rgba(66, 133, 244, 0.22);
   color: var(--gblue-800);
   padding: 5px 12px 5px 10px;
@@ -1819,7 +1824,7 @@ kbd {
   transition: background 0.15s, border-color 0.15s, transform 0.12s;
 }
 .section-template-btn:hover {
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.14) 0%, rgba(124, 58, 237, 0.10) 100%);
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.14) 0%, rgba(26, 115, 232, 0.10) 100%);
   border-color: rgba(66, 133, 244, 0.4);
   transform: translateY(-1px);
 }
@@ -1837,22 +1842,6 @@ kbd {
   padding-bottom: 16px;
   margin-bottom: 18px;
   border-bottom: 1px solid var(--g100);
-}
-.card-hdr-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #4285F4 0%, #9C27B0 100%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(66,133,244,0.22);
-}
-.card-hdr-icon .material-symbols-outlined {
-  color: white;
-  font-size: 17px;
-  font-variation-settings: 'wght' 500, 'FILL' 1;
 }
 .card-hdr h2, .card-hdr h3 {
   font-family: var(--font-display);
@@ -1996,15 +1985,15 @@ kbd {
 .timeline-summary-edit:active, .field-help:active {
   transform: scale(0.96);
 }
-/* v3.4: AI-marked primary button — the brief is the AI artifact, treat it like one */
+/* Primary action button — quiet blue ramp, no AI costume */
 .btn-ai {
-  background: linear-gradient(135deg, #4285F4 0%, #7C5DC9 45%, #C7569D 100%);
+  background: var(--gradient-signature);
   color: white;
-  box-shadow: 0 1px 3px rgba(124, 58, 237, 0.18);
+  box-shadow: 0 1px 3px rgba(26, 115, 232, 0.18);
 }
 .btn-ai:hover {
-  background: linear-gradient(135deg, #3B7FE5 0%, #6F50BC 45%, #B94B91 100%);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.24);
+  background: linear-gradient(135deg, #1967D2 0%, #174EA6 100%);
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.24);
 }
 .btn-ai .material-symbols-outlined {
   color: white;
@@ -2233,7 +2222,7 @@ kbd {
   border-radius: 14px;
   position: relative;
   max-width: 580px;
-  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.04), 0 0 0 1px rgba(124, 58, 237, 0.05);
+  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.04), 0 0 0 1px rgba(26, 115, 232, 0.05);
 }
 /* Gradient hairline border via mask — Gemini AI container pattern.
    v3.4.1: softened to ~55% alpha so the border reads as a quiet boundary,
@@ -2246,30 +2235,12 @@ kbd {
   padding: 1px;
   background: linear-gradient(135deg,
     rgba(66, 133, 244, 0.55) 0%,
-    rgba(145, 104, 213, 0.55) 38%,
-    rgba(235, 102, 183, 0.50) 68%,
-    rgba(242, 166, 90, 0.45) 100%);
+    rgba(26, 115, 232, 0.45) 100%);
   -webkit-mask: linear-gradient(white, white) content-box, linear-gradient(white, white);
           mask: linear-gradient(white, white) content-box, linear-gradient(white, white);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
   pointer-events: none;
-}
-/* Shimmer pass on first render */
-.pe-insight.is-fresh::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 14px;
-  background: linear-gradient(110deg, transparent 30%, rgba(145, 104, 213, 0.10) 50%, transparent 70%);
-  background-size: 220% 100%;
-  background-position: -110% 0;
-  animation: ai-shimmer 1.4s cubic-bezier(0.22, 0.61, 0.36, 1) 1 forwards;
-  pointer-events: none;
-}
-@keyframes ai-shimmer {
-  0%   { background-position: -110% 0; opacity: 1; }
-  100% { background-position: 210% 0; opacity: 0; }
 }
 .pe-insight-header {
   display: flex;
@@ -2279,11 +2250,7 @@ kbd {
 }
 .pe-insight-header .material-symbols-outlined {
   font-size: 16px;
-  background: linear-gradient(135deg, #4285F4 0%, #9168D5 50%, #EB66B7 100%);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  color: var(--accent-ink);
   font-variation-settings: 'FILL' 1, 'wght' 500;
 }
 .pe-insight-label {
@@ -2347,16 +2314,13 @@ kbd {
 }
 .pe-insight-chip .material-symbols-outlined {
   font-size: 12px;
-  background: linear-gradient(135deg, #4285F4, #9168D5, #EB66B7);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent-ink);
   font-variation-settings: 'FILL' 1, 'wght' 500;
 }
 /* v3.4.1: active chip + inline expansion. Clicking a chip slides a generated
    answer paragraph in below the chip row. Second click on the same chip collapses. */
 .pe-insight-chip.is-active {
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.10), rgba(124, 58, 237, 0.06));
+  background: rgba(66, 133, 244, 0.10);
   border-color: rgba(66, 133, 244, 0.45);
   color: var(--gblue-800, #1A4FB8);
 }
@@ -2396,9 +2360,8 @@ kbd {
   margin-top: 12px;
 }
 .pe-insight-expansion-body {
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.035), rgba(124, 58, 237, 0.025));
-  border-left: 2px solid;
-  border-image: linear-gradient(180deg, #4285F4, #9168D5 50%, #EB66B7) 1;
+  background: rgba(66, 133, 244, 0.035);
+  border-left: 2px solid var(--gblue-500);
   padding: 12px 16px 10px;
   font-size: 12.5px;
   line-height: 1.6;
@@ -2429,9 +2392,9 @@ kbd {
   border-radius: 14px;
 }
 @keyframes ai-flash {
-  0%   { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.0); }
-  20%  { box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.20); }
-  100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.0); }
+  0%   { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.0); }
+  20%  { box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.20); }
+  100% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.0); }
 }
 /* AI marker on hero annotation when weakest-factor callout is shown */
 .hero-annotation .ai-marker {
@@ -2442,14 +2405,10 @@ kbd {
 }
 .hero-annotation .ai-marker .material-symbols-outlined {
   font-size: 13px;
-  background: linear-gradient(135deg, #4285F4, #9168D5, #EB66B7);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent-ink);
   font-variation-settings: 'FILL' 1, 'wght' 500;
   vertical-align: -2px;
 }
-/* v3.4: brief sparkle now lives inside .btn-ai (filled gradient button), keeping the icon white */
 
 .hero-range {
   display: inline-flex;
@@ -2564,10 +2523,7 @@ kbd {
   letter-spacing: 0.1px;
 }
 .aace-lever-override {
-  background: linear-gradient(135deg, #4285F4, #9168D5);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent-ink);
   font-weight: 600;
 }
 
@@ -2812,7 +2768,7 @@ kbd {
   background: linear-gradient(180deg, rgba(232, 240, 254, 0.35) 0%, rgba(243, 232, 255, 0.18) 100%);
   box-shadow:
     0 0 0 4px rgba(66, 133, 244, 0.14),
-    0 0 0 5px rgba(124, 58, 237, 0.06);
+    0 0 0 5px rgba(26, 115, 232, 0.06);
 }
 .save-modal-actions {
   display: flex;
@@ -3462,14 +3418,15 @@ kbd {
   background: var(--gblue-500);
 }
 /* §6.4: faded swatch matches the de-emphasized in-market comps; gradient strip explains the
-   similarity color scale the dots use (light blue → deep blue/purple). */
+   similarity color scale the dots use (light blue → deep blue). Must stay in sync with the
+   sct-dot-* radialGradient stops in 19-scatter.js. */
 .scatter-legend-dot-faded { opacity: 0.22; }
 .scatter-legend-sub { color: var(--g500); }
 .scatter-legend-gradient {
   width: 46px;
   height: 10px;
   border-radius: 5px;
-  background: linear-gradient(90deg, #7BAAF7 0%, #4285F4 45%, #1A73E8 75%, #7C3AED 100%);
+  background: linear-gradient(90deg, #7BAAF7 0%, #4285F4 45%, #1A73E8 75%, #174EA6 100%);
 }
 
 /* ============================================================================
@@ -3514,25 +3471,6 @@ kbd {
   overflow-y: auto;
   overflow-x: hidden;
 }
-/* v3.4.1: streaming-artifact treatment — shimmer pass + staged section fade-in.
-   Total duration ~1.2s with deliberate cascade so the "just generated for you" framing
-   lands unmistakably, not subliminally. */
-.brief-modal-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  background: linear-gradient(110deg,
-    transparent 20%,
-    rgba(124, 93, 201, 0.22) 45%,
-    rgba(199, 86, 157, 0.18) 55%,
-    transparent 80%);
-  background-size: 220% 100%;
-  background-position: -110% 0;
-  animation: ai-shimmer 2.0s cubic-bezier(0.22, 0.61, 0.36, 1) 1 forwards;
-  pointer-events: none;
-  z-index: 2;
-}
 .brief-modal.closing .brief-modal-card { animation: smPopOut 0.16s ease-out forwards; }
 @keyframes briefStreamIn {
   0%   { opacity: 0; transform: translateY(10px); }
@@ -3566,11 +3504,7 @@ kbd {
 }
 .brief-eyebrow-sparkle {
   font-size: 14px !important;
-  background: linear-gradient(135deg, #4285F4, #9168D5, #EB66B7);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent !important;
+  color: var(--accent-ink) !important;
   font-variation-settings: 'FILL' 1, 'wght' 500;
 }
 .brief-modal-title {
@@ -3669,7 +3603,7 @@ kbd {
 }
 .brief-empty-mini { padding: 4px 0; font-size: 11px; }
 .brief-anchor-card {
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.06) 0%, rgba(124, 58, 237, 0.04) 100%);
+  background: rgba(66, 133, 244, 0.06);
   border: 1px solid rgba(66, 133, 244, 0.22);
   border-radius: 10px;
   padding: 14px 16px;
@@ -3726,19 +3660,11 @@ kbd {
   padding-top: 18px;
   border-top: 1px solid var(--g100);
 }
-/* v3.4: Gemini gradient bar at the bottom edge of the brief modal —
-   the most explicit "this is AI" signal on the page, used in the right place:
-   at the moment the system has just generated a fresh artifact. */
+/* Quiet accent hairline at the bottom edge of the brief modal. */
 .brief-modal-gradient-bar {
   height: 3px;
   margin: 22px -36px -28px;
-  background: linear-gradient(90deg,
-    #4285F4 0%,
-    #7C5DC9 28%,
-    #C7569D 52%,
-    #EB66B7 68%,
-    #F2A65A 86%,
-    #FBBC04 100%);
+  background: var(--gblue-600);
   border-radius: 0 0 16px 16px;
   animation: briefStreamIn 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) 1.12s both;
 }
@@ -4169,7 +4095,7 @@ kbd {
   background: linear-gradient(180deg, rgba(232, 240, 254, 0.35) 0%, rgba(243, 232, 255, 0.18) 100%);
   box-shadow:
     0 0 0 4px rgba(66, 133, 244, 0.14),
-    0 0 0 5px rgba(124, 58, 237, 0.06),
+    0 0 0 5px rgba(26, 115, 232, 0.06),
     0 4px 16px rgba(66, 133, 244, 0.08);
 }
 .m3-field-label {
@@ -4390,7 +4316,7 @@ kbd {
   background: linear-gradient(180deg, rgba(232, 240, 254, 0.35) 0%, rgba(243, 232, 255, 0.18) 100%);
   box-shadow:
     0 0 0 4px rgba(66, 133, 244, 0.14),
-    0 0 0 5px rgba(124, 58, 237, 0.06),
+    0 0 0 5px rgba(26, 115, 232, 0.06),
     0 4px 16px rgba(66, 133, 244, 0.08);
   transition: box-shadow 0.2s, background 0.2s, border-color 0.15s;
 }
@@ -4400,29 +4326,6 @@ kbd {
   margin-top: 6px;
   padding: 0 16px;
   line-height: 1.45;
-}
-
-/* ============================================================================
-   GEMINI-STYLE INPUT POLISH — gradient accents, AI feel for smart features
-   ============================================================================ */
-.gemini-gradient {
-  background: linear-gradient(135deg, #4285F4 0%, #9C27B0 60%, #EA4335 100%);
-}
-.section-label .section-icon-wrap {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  background: linear-gradient(135deg, #4285F4 0%, #9C27B0 100%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 4px;
-  box-shadow: 0 1px 2px rgba(66,133,244,0.25);
-}
-.section-label .section-icon-wrap .material-symbols-outlined {
-  color: white;
-  font-size: 15px;
-  font-variation-settings: 'wght' 500;
 }
 
 /* Project name — hero field */
@@ -4441,7 +4344,7 @@ kbd {
 }
 .project-name-field .m3-field-input:focus {
   padding: 0 55px 0 21px;
-  box-shadow: 0 0 0 5px rgba(66,133,244,0.12), 0 0 0 6px rgba(124,58,237,0.05);
+  box-shadow: 0 0 0 5px rgba(66,133,244,0.12), 0 0 0 6px rgba(26,115,232,0.05);
 }
 .project-name-field .m3-field-label {
   left: 18px;
@@ -4499,13 +4402,6 @@ kbd {
 .comp-availability .material-symbols-outlined {
   font-size: 13px;
   font-variation-settings: 'FILL' 1;
-}
-.comp-availability .ai-sparkle {
-  background: linear-gradient(135deg, #4285F4 0%, #9C27B0 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
 }
 .comp-availability.high {
   background: linear-gradient(135deg, var(--success-c) 0%, #E8F5E9 100%);
@@ -4872,7 +4768,7 @@ kbd {
 .premodel-preview {
   margin-bottom: 22px;
   padding: 12px 14px 10px;
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.04), rgba(124, 58, 237, 0.03));
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.04), rgba(26, 115, 232, 0.03));
   border: 1px solid rgba(66, 133, 244, 0.15);
   border-radius: 12px;
   position: relative;
@@ -4940,12 +4836,12 @@ kbd {
    full pmp-grid + foot narrative. Tight one-line readout otherwise. */
 .premodel-preview[data-collapsed="true"] { padding: 0; background: transparent; border-color: transparent; }
 .premodel-preview[data-collapsed="true"] .pmp-body { display: none; }
-.premodel-preview[data-collapsed="false"] .pmp-chip { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; background: linear-gradient(135deg, rgba(66, 133, 244, 0.06), rgba(124, 58, 237, 0.04)); }
+.premodel-preview[data-collapsed="false"] .pmp-chip { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; background: linear-gradient(135deg, rgba(66, 133, 244, 0.06), rgba(26, 115, 232, 0.04)); }
 .premodel-preview[data-collapsed="false"] .pmp-chip-caret { transform: rotate(180deg); }
 .premodel-preview[data-collapsed="false"] .pmp-body {
   display: block;
   padding: 12px 14px 10px;
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.04), rgba(124, 58, 237, 0.03));
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.04), rgba(26, 115, 232, 0.03));
   border: 1px solid rgba(66, 133, 244, 0.18);
   border-top: 0;
   border-bottom-left-radius: 12px;
@@ -5018,7 +4914,7 @@ kbd {
   gap: 6px;
   padding: 5px 10px 5px 8px;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.08), rgba(124, 58, 237, 0.06));
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.08), rgba(26, 115, 232, 0.06));
   border: 1px solid rgba(66, 133, 244, 0.18);
   font-family: var(--font-mono);
   font-size: 10.5px;
@@ -5030,10 +4926,7 @@ kbd {
 }
 .wizard-intro-eyebrow .material-symbols-outlined {
   font-size: 13px;
-  background: linear-gradient(135deg, #4285F4, #9168D5, #EB66B7);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent-ink);
   font-variation-settings: 'FILL' 1;
 }
 .wizard-intro-title {
@@ -5509,7 +5402,7 @@ body[data-view="report"] .app-bar-context.is-active { display: inline-flex; }
   position: relative;
   background: var(--surf, #F7F9FE);
   border: 1px solid var(--g150, var(--g200));
-  border-left: 3px solid #9168D5;
+  border-left: 3px solid var(--gblue-600);
   border-radius: 10px;
   padding: 18px 20px 16px;
   margin: 0;
@@ -5528,10 +5421,7 @@ body[data-view="report"] .app-bar-context.is-active { display: inline-flex; }
 }
 .pe-insight-header .ai-sparkle {
   font-size: 14px;
-  background: linear-gradient(135deg, #4285F4, #9168D5, #EB66B7);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent-ink);
   font-variation-settings: 'FILL' 1;
 }
 .pe-insight-label {
@@ -5905,7 +5795,7 @@ body[data-view="report"] #sec-findings {
 .pe-insight-v6 {
   background: var(--surf);
   border: 1px solid var(--g150, #E5E7EB);
-  border-left: 3px solid #9168D5;
+  border-left: 3px solid var(--gblue-600);
   border-radius: 12px;
   padding: 22px 24px 18px;
 }
@@ -6504,7 +6394,7 @@ body[data-view="report"] .comp-table-v51 tfoot tr {
 /* Findings card — tighter, sharper */
 body[data-view="report"] .pe-insight-v6 {
   padding: 16px 18px 14px !important;
-  border-left: 3px solid #9168D5 !important;
+  border-left: 3px solid var(--gblue-600) !important;
 }
 body[data-view="report"] .pe-finding-grid {
   gap: 24px;
@@ -6575,7 +6465,7 @@ body[data-view="form"] .wizard-intro-eyebrow {
   gap: 7px;
   padding: 5px 12px 5px 9px;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(66,133,244,0.10), rgba(145,104,213,0.08));
+  background: rgba(66,133,244,0.10);
   border: 1px solid rgba(66,133,244,0.20);
   font-family: var(--font-mono);
   font-size: 10.5px;
@@ -6587,10 +6477,7 @@ body[data-view="form"] .wizard-intro-eyebrow {
 }
 body[data-view="form"] .wizard-intro-eyebrow .material-symbols-outlined {
   font-size: 13px;
-  background: linear-gradient(135deg, #4285F4, #9168D5, #EB66B7);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent-ink);
   font-variation-settings: 'FILL' 1;
 }
 body[data-view="form"] .wizard-intro-title {
@@ -6817,27 +6704,6 @@ body[data-view="form"] .btn-run {
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.05px;
-}
-body[data-view="form"] .btn-run::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.18) 50%,
-    transparent 100%);
-  /* One-shot sweep when the form first appears — never an infinite loop, which
-     reads as "loading" on a high-frequency control when nothing is loading. */
-  animation: runBtnPulse 2.4s ease-in-out 1;
-  pointer-events: none;
-}
-@keyframes runBtnPulse {
-  0%   { transform: translateX(0%); }
-  50%  { transform: translateX(220%); }
-  100% { transform: translateX(220%); }
 }
 body[data-view="form"] .btn-run:hover {
   transform: translateY(-1px);
@@ -7108,7 +6974,7 @@ body[data-view="report"] .hero-tpc-total-val {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(135deg, rgba(66, 133, 244, 0.08), rgba(124, 58, 237, 0.06));
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.08), rgba(26, 115, 232, 0.06));
   border: 1px solid rgba(66, 133, 244, 0.25);
   color: var(--gblue-800, #1A4FB8);
   font-size: 11.5px;
@@ -7178,10 +7044,7 @@ body[data-view="report"] .hero-tpc-total-val {
 }
 .hero-empty-eyebrow .material-symbols-outlined {
   font-size: 14px;
-  background: linear-gradient(135deg, #4285F4, #9168D5, #EB66B7);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent-ink);
   font-variation-settings: 'FILL' 1;
 }
 .hero-empty-title {
@@ -7326,9 +7189,7 @@ body.is-thinking .scr-amount, body.is-thinking .scr-verdict { opacity: 0; }
   padding: 1px;
   background: linear-gradient(135deg,
     rgba(66, 133, 244, 0.55) 0%,
-    rgba(145, 104, 213, 0.55) 38%,
-    rgba(235, 102, 183, 0.50) 68%,
-    rgba(242, 166, 90, 0.45) 100%);
+    rgba(26, 115, 232, 0.45) 100%);
   -webkit-mask: linear-gradient(white, white) content-box, linear-gradient(white, white);
           mask: linear-gradient(white, white) content-box, linear-gradient(white, white);
   -webkit-mask-composite: xor;
@@ -7433,7 +7294,7 @@ body.is-thinking .scr-amount, body.is-thinking .scr-verdict { opacity: 0; }
 .thinking-item[data-type="check"] .thinking-icon::before { content: ''; }
 .thinking-item[data-type="spin"].spinning .thinking-icon {
   color: transparent;
-  background: conic-gradient(from 0deg, transparent, rgba(124, 58, 237, 0.85));
+  background: conic-gradient(from 0deg, transparent, rgba(26, 115, 232, 0.85));
   -webkit-mask: radial-gradient(circle, transparent 4px, black 5px, black 7px, transparent 8px);
           mask: radial-gradient(circle, transparent 4px, black 5px, black 7px, transparent 8px);
   border-radius: 50%;
@@ -7677,7 +7538,7 @@ body.is-thinking .scr-amount, body.is-thinking .scr-verdict { opacity: 0; }
   transform: translate(-50%, -50%); z-index: 0; pointer-events: none; filter: blur(30px);
   background:
     radial-gradient(ellipse 42% 50% at 50% 42%, rgba(66,133,244,0.18), transparent 70%),
-    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(156,39,176,0.07), transparent 72%);
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(24,90,188,0.07), transparent 72%);
 }
 [data-theme="dark"] .sc-hero::before {
   filter: blur(34px);
@@ -7701,7 +7562,7 @@ body.is-thinking .scr-amount, body.is-thinking .scr-verdict { opacity: 0; }
   color: transparent; -webkit-text-fill-color: transparent;
 }
 [data-theme="dark"] .sc-hero-amount .hero-amount-num {
-  background: linear-gradient(135deg, #9DC0FF 0%, #C6ACF6 50%, #F6AED8 100%);
+  background: var(--gradient-text);
   -webkit-background-clip: text; background-clip: text;
   filter: drop-shadow(0 6px 34px rgba(120,160,255,0.34));
 }
@@ -7734,7 +7595,7 @@ body.is-thinking .scr-amount, body.is-thinking .scr-verdict { opacity: 0; }
 [data-theme="dark"] .sc-range-track { box-shadow: inset 0 1px 3px rgba(0,0,0,0.45); }
 .sc-range-fill {
   position: absolute; inset: 0; border-radius: 999px; opacity: 0.9;
-  background: linear-gradient(90deg, var(--gblue-400) 0%, var(--gblue-500) 48%, #9168D5 100%);
+  background: linear-gradient(90deg, var(--gblue-400) 0%, var(--gblue-500) 48%, var(--gblue-700) 100%);
 }
 .sc-range-marker {
   position: absolute; top: 50%; width: 19px; height: 19px; border-radius: 50%;
@@ -8247,7 +8108,7 @@ body::after {
           <span>Inputs changed — re-run the model</span>
         </div>
         <button type="button" class="btn btn-ai btn-run" id="runBtn">
-          <span class="material-symbols-outlined">auto_awesome</span>
+          <span class="material-symbols-outlined">calculate</span>
           <span class="run-label-initial">Run Cost Benchmark</span>
           <span class="run-label-rerun">Re-run with updated inputs</span>
         </button>
@@ -8428,7 +8289,7 @@ body::after {
     </div>
     <div class="sticky-actions-btns">
       <button class="btn btn-outlined" id="stickyCopyBtn"><span class="material-symbols-outlined">ios_share</span>Copy / Share</button>
-      <button class="btn btn-outlined btn-ai" id="stickyBriefBtn"><span class="material-symbols-outlined">auto_awesome</span>Brief</button>
+      <button class="btn btn-outlined btn-ai" id="stickyBriefBtn"><span class="material-symbols-outlined">description</span>Brief</button>
       <button class="btn btn-filled" id="stickySaveBtn"><span class="material-symbols-outlined">bookmark_add</span>Save</button>
     </div>
   </div>
@@ -9697,8 +9558,8 @@ function globeSVG(idSuffix) {
       <circle class="globe-shade" cx="60" cy="60" r="48" fill="url(#globe-shade-grad-${id})" pointer-events="none"/>
       <!-- City pin (positioned by drawGlobe via d3 projection) -->
       <g class="globe-pin">
-        <circle class="globe-pin-ring" cx="60" cy="60" r="9" fill="none" stroke="#EB66B7" stroke-width="1.4"/>
-        <circle class="globe-pin-dot"  cx="60" cy="60" r="3.4" fill="#EB66B7" stroke="white" stroke-width="0.6"/>
+        <circle class="globe-pin-ring" cx="60" cy="60" r="9" fill="none" stroke="#EA4335" stroke-width="1.4"/>
+        <circle class="globe-pin-dot"  cx="60" cy="60" r="3.4" fill="#EA4335" stroke="white" stroke-width="0.6"/>
       </g>
     </svg>
   `;
@@ -10376,7 +10237,7 @@ function renderPEInsight(r, inp) {
   mount.innerHTML = `
     <div class="pe-insight pe-insight-v6 is-fresh">
       <div class="pe-insight-header">
-        <span class="material-symbols-outlined ai-sparkle">auto_awesome</span>
+        <span class="material-symbols-outlined ai-sparkle">insights</span>
         <span class="pe-insight-label">Findings</span>
       </div>
       <div class="pe-finding-grid">
@@ -12285,7 +12146,7 @@ function renderScatter(r, inp) {
   const defs = `<defs>
     <radialGradient id="sct-bg-glow" cx="50%" cy="50%" r="55%">
       <stop offset="0%" stop-color="rgba(66,133,244,0.06)"/>
-      <stop offset="60%" stop-color="rgba(145,104,213,0.025)"/>
+      <stop offset="60%" stop-color="rgba(26,115,232,0.025)"/>
       <stop offset="100%" stop-color="rgba(66,133,244,0)"/>
     </radialGradient>
     <radialGradient id="sct-dot-lo" cx="35%" cy="30%" r="80%">
@@ -12301,19 +12162,19 @@ function renderScatter(r, inp) {
       <stop offset="100%" stop-color="#1A73E8"/>
     </radialGradient>
     <radialGradient id="sct-dot-top" cx="35%" cy="30%" r="80%">
-      <stop offset="0%" stop-color="#7C3AED"/>
-      <stop offset="60%" stop-color="#4338CA"/>
+      <stop offset="0%" stop-color="#174EA6"/>
+      <stop offset="60%" stop-color="#185ABC"/>
       <stop offset="100%" stop-color="#1A73E8"/>
     </radialGradient>
     <radialGradient id="sct-target-glow" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="rgba(66,133,244,0.45)"/>
-      <stop offset="50%" stop-color="rgba(124,58,237,0.18)"/>
-      <stop offset="100%" stop-color="rgba(124,58,237,0)"/>
+      <stop offset="50%" stop-color="rgba(26,115,232,0.18)"/>
+      <stop offset="100%" stop-color="rgba(26,115,232,0)"/>
     </radialGradient>
     <radialGradient id="sct-target-core" cx="35%" cy="30%" r="80%">
       <stop offset="0%" stop-color="#A4C2FA"/>
       <stop offset="50%" stop-color="#4285F4"/>
-      <stop offset="100%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#185ABC"/>
     </radialGradient>
     <filter id="sct-dot-shadow" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur in="SourceAlpha" stdDeviation="1.6"/>
@@ -12374,7 +12235,7 @@ function renderScatter(r, inp) {
       fillRef = '#D8DCE3'; strokeColor = '#9AA0A6'; opacity = 0.42;
     } else {
       const t = Math.max(0, Math.min(1, (p.sim - 0.2) / 0.8));
-      if (t >= 0.75) { fillRef = 'url(#sct-dot-top)'; strokeColor = '#4338CA'; }
+      if (t >= 0.75) { fillRef = 'url(#sct-dot-top)'; strokeColor = '#174EA6'; }
       else if (t >= 0.5) { fillRef = 'url(#sct-dot-hi)'; strokeColor = '#1A73E8'; }
       else if (t >= 0.25) { fillRef = 'url(#sct-dot-mid)'; strokeColor = '#4285F4'; }
       else { fillRef = 'url(#sct-dot-lo)'; strokeColor = '#7BAAF7'; }
@@ -12690,13 +12551,13 @@ function updateCompAvailability(inp) {
   if (byTypeCity.length >= 4) {
     level = 'high';
     label = `${byTypeCity.length} comps in ${inp.city} · strong coverage`;
-    icon = 'auto_awesome';
+    icon = 'check_circle';
   } else if (byTypeCity.length >= 1 || byTypeRegion.length >= 5) {
     level = 'med';
     label = byTypeCity.length >= 1
       ? `${byTypeCity.length} in ${inp.city}, ${byTypeRegion.length} in ${inp.region} · moderate coverage`
       : `${byTypeRegion.length} in ${inp.region} · moderate coverage`;
-    icon = 'auto_awesome';
+    icon = 'check_circle';
   } else if (byType.length >= 1) {
     level = 'low';
     label = `${byType.length} comps for ${inp.type} · sparse — expect wider range`;
@@ -12707,7 +12568,7 @@ function updateCompAvailability(inp) {
     icon = 'error';
   }
   el.className = `comp-availability show ${level}`;
-  el.innerHTML = `<span class="material-symbols-outlined ${level === 'high' || level === 'med' ? 'ai-sparkle' : ''}">${icon}</span>${label}`;
+  el.innerHTML = `<span class="material-symbols-outlined">${icon}</span>${label}`;
 }
 
 // Move 5: type-aware size pills. The fixed 10K/25K/100K/500K chips meant the same
